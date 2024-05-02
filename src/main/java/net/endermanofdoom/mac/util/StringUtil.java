@@ -15,6 +15,66 @@ public class StringUtil
 		return original;
 	}
 	
+	public static String parseDouble(double value)
+	{
+		String input;
+		if (value >= 1000000000000000000000000000000000000.0D)
+		input = "Infinity (" + (int)Math.floor((value / Double.MAX_VALUE) * 100) + "%)";
+		else if (value >= 1000000000000000000000000000000000.0D)
+		input = Math.floor(value * 0.00000000000000000000000000000001D) * 0.1D + " Decillion";
+		else if (value >= 1000000000000000000000000000000.0D)
+		input = Math.floor(value * 0.00000000000000000000000000001D) / 10 + " Nonillion";
+		else if (value >= 1000000000000000000000000000.0D)
+		input = Math.floor(value * 0.00000000000000000000000001D) / 10 + " Octillion";
+		else if (value >= 1000000000000000000000000.0D)
+		input = Math.floor(value * 0.00000000000000000000001D) / 10 + " Septillion";
+		else if (value >= 1000000000000000000000.0D)
+		input = Math.floor(value * 0.00000000000000000001D) / 10D + " Sextillion";
+		else if (value >= 1000000000000000000.0D)
+		input = Math.floor(value * 0.00000000000000001D) / 10 + " Quintillion";
+		else if (value >= 1000000000000000.0D)
+		input = Math.floor(value * 0.00000000000001D) / 10 + " Quadrillion";
+		else if (value >= 1000000000000.0D)
+		input = Math.floor(value * 0.00000000001D) / 10 + " Trillion";
+		else if (value >= 1000000000.0D)
+		input = Math.floor(value * 0.00000001D) / 10 + " Billion";
+		else if (value >= 1000000.0D)
+		input =  Math.floor(value * 0.00001D) / 10 + " Million";
+		else
+		input = (int)Math.floor(value) + "";
+		return input;
+	}
+	
+	public static String parseFloat(float value)
+	{
+		String input;
+		if (value >= 1000000000000000000000000000000000000.0F)
+		input = "Infinity (" + (int)Math.floor((value / Float.MAX_VALUE) * 100) + "%)";
+		else if (value >= 1000000000000000000000000000000000.0F)
+		input = Math.floor(value * 0.00000000000000000000000000000001F) * 0.1F + " Decillion";
+		else if (value >= 1000000000000000000000000000000.0F)
+		input = Math.floor(value * 0.00000000000000000000000000001F) / 10 + " Nonillion";
+		else if (value >= 1000000000000000000000000000.0F)
+		input = Math.floor(value * 0.00000000000000000000000001F) / 10 + " Octillion";
+		else if (value >= 1000000000000000000000000.0F)
+		input = Math.floor(value * 0.00000000000000000000001F) / 10 + " Septillion";
+		else if (value >= 1000000000000000000000.0F)
+		input = Math.floor(value * 0.00000000000000000001F) / 10F + " Sextillion";
+		else if (value >= 1000000000000000000.0F)
+		input = Math.floor(value * 0.00000000000000001F) / 10 + " Quintillion";
+		else if (value >= 1000000000000000.0F)
+		input = Math.floor(value * 0.00000000000001F) / 10 + " Quadrillion";
+		else if (value >= 1000000000000.0F)
+		input = Math.floor(value * 0.00000000001F) / 10 + " Trillion";
+		else if (value >= 1000000000.0F)
+		input = Math.floor(value * 0.00000001F) / 10 + " Billion";
+		else if (value >= 1000000.0F)
+		input =  Math.floor(value * 0.00001F) / 10 + " Million";
+		else
+		input = (int)Math.floor(value) + "";
+		return input;
+	}
+	
 	@SideOnly(Side.CLIENT)
 	public static List<String> wordwrap(net.minecraft.client.gui.FontRenderer fontRenderer, String str, int width)
 	{

@@ -1,15 +1,14 @@
-package net.endermanofdoom.mac.gui;
+package net.endermanofdoom.mac.client.gui;
 
 import java.util.UUID;
 
-import net.endermanofdoom.mac.ClientProxy;
-import net.endermanofdoom.mac.interfaces.IBossBars;
+import net.endermanofdoom.mac.interfaces.IBossBar;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
-public class GuiEntry
+public class GuiBossBarEntry
 {
 	public int[] rgb = {255, 0, 0, 255, 135, 0};
-	private IBossBars entry;
+	private IBossBar entry;
 	private double lastDamage;
 	private double lastTotalDamage;
 	private double prevMainValue;
@@ -25,7 +24,7 @@ public class GuiEntry
 	private double mainIndicator;
 	private double staminaIndicator;
 	
-	public GuiEntry(IBossBars entry)
+	public GuiBossBarEntry(IBossBar entry)
 	{
 		this.entry = entry;
 		rgb = entry.getBarColor();
@@ -99,7 +98,7 @@ public class GuiEntry
 			staminaIndicatorSmooth = getCurrent(2);
 		
 		if (getCurrent(0) <= 0.0D && deathTicks > 350 && getIndicator(0) <= 0.0D || entry == null)
-			ClientProxy.manager.inGameGui.queueRemoval(entry.getUniqueBarID());
+			// REMOVE ClientProxy.manager.inGameGui.queueRemoval(entry.getUniqueBarID());
 		ticksExisted++;
 	}
 
@@ -222,7 +221,7 @@ public class GuiEntry
 		return entry.hasStamina();
 	}
 
-	public GuiEntry setColor(int... colors)
+	public GuiBossBarEntry setColor(int... colors)
 	{
 		for (int i = 0; i < rgb.length && i < colors.length; i++)
 		rgb[i] = colors[i];
@@ -239,7 +238,7 @@ public class GuiEntry
 		return entry.getBarName();
 	}
 	
-	public IBossBars getEntry()
+	public IBossBar getEntry()
 	{
 		return entry;
 	}
@@ -252,6 +251,12 @@ public class GuiEntry
 	public void reset()
 	{
 		entry = null;
+	}
+
+	public boolean isDead()
+	{
+		// TODO Auto-generated method stub
+		return entry.isDead();
 	}
 }
 
