@@ -84,11 +84,14 @@ public class BossBarManager
 		GuiBossBarEntry entry;
 		int size = entries.size();
 		int finalSize = res.getScaledHeight() / 65;
-		for (int i = 0; i < size && i < finalSize; i++)
+		for (int i = 0, ii = 0; i < size && ii < finalSize; i++)
 		{
 			entry = entries.get(i);
 			if (entry.canRender(MC.player))
-				ClientProxy.BOSSBARS.renderNewBar(i, entry);
+			{
+				ClientProxy.BOSSBARS.renderNewBar(ii, entry);
+				ii++;
+			}
 		};
 	}
 	

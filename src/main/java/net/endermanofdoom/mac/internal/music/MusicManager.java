@@ -81,6 +81,13 @@ public class MusicManager
 				}
 			}
 			
+			if (currentMusic == null && sound != null && lastMusic != null && lastMusic.getSoundLocation().equals(sound.getSoundName()))
+			{
+				currentMusic = lastMusic;
+				lastMusic = null;
+				currentMusic.transition = false;
+			}
+			
 			if (currentMusic == null && sound != null || currentMusic != null && (sound == null || !currentMusic.getSoundLocation().equals(sound.getSoundName())))
 				play(sound);
 		}

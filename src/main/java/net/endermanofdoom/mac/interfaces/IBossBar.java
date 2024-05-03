@@ -1,7 +1,5 @@
 package net.endermanofdoom.mac.interfaces;
 
-import java.util.UUID;
-
 import net.endermanofdoom.mac.MACCore;
 import net.minecraft.util.ResourceLocation;
 
