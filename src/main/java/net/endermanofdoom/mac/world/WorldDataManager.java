@@ -39,6 +39,16 @@ public class WorldDataManager
 		ticks++;
 	}
 	
+	public static void addWorldData(WorldData data)
+	{
+		if (exists(data.fileName))
+		{
+			MACCore.error("Attempted to register duplicate world data for data " + data.fileName);
+			return;
+		}
+		worldData.put(data.fileName, data);
+	}
+	
 	public static void save()
 	{
 		if (isRemote)
@@ -46,6 +56,7 @@ public class WorldDataManager
 			MACCore.error("Cannot save all world data on the client");
 			return;
 		}
+		MACCore.debug("Saving MAC world data...");
 		worldData.forEach((key, data) -> data.save());
 	}
 	

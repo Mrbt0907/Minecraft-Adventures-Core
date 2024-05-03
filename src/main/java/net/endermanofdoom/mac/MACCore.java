@@ -101,6 +101,7 @@ public class MACCore
 	@EventHandler
 	public void onServerStop(FMLServerStoppingEvent event)
 	{
+		WorldDataManager.save();
 		WorldDataManager.reset();
 	}
 	

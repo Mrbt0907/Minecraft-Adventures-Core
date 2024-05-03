@@ -33,6 +33,7 @@ public class WorldData
 		if (WorldDataManager.exists(fileName))
 			MACCore.fatal("Created duplicate world data objects");
 		this.fileName = fileName;
+		WorldDataManager.addWorldData(this);
 		if (isRemote)
 		{
 			nbt = new NBTTagCompound();
