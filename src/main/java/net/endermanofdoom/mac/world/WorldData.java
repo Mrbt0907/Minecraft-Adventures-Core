@@ -17,12 +17,12 @@ public class WorldData
 	public WorldData(String fileName)
 	{
 		this.fileName = fileName;
-		nbt = FileUtil.loadCompactNBT(FileUtil.getWorldFolderPath() + "data", fileName, true);
+		nbt = FileUtil.loadCompactNBT(FileUtil.getWorldFolderPath() + FileUtil.getWorldFolderName() + "data", fileName, true);
 	}
 	
 	public void save()
 	{
-		FileUtil.saveCompactNBT(FileUtil.getWorldFolderPath() + "data", fileName, nbt);
+		FileUtil.saveCompactNBT(FileUtil.getWorldFolderPath() + FileUtil.getWorldFolderName() + "data", fileName, nbt);
 	}
 	
 	public boolean hasKey(String key)
