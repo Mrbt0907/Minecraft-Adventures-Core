@@ -7,6 +7,7 @@ import net.endermanofdoom.mac.config.ConfigCore;
 import net.endermanofdoom.mac.network.NetworkHandler;
 import net.endermanofdoom.mac.network.NetworkReciever;
 import net.endermanofdoom.mac.util.ReflectionUtil;
+import net.endermanofdoom.mac.world.WorldDataManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -22,6 +23,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Config.Type;
 import net.minecraftforge.common.config.ConfigManager;
+import net.minecraftforge.event.world.WorldEvent.Save;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent.OnConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -31,6 +33,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -89,9 +92,22 @@ public class MACCore
 	}
 	
 	@EventHandler
-	public void onServerStart(FMLServerStartingEvent e)
+	public void onServerStart(FMLServerStartingEvent event)
 	{
-		e.registerServerCommand(new CommandMAC());
+		event.registerServerCommand(new CommandMAC());
+		WorldDataManager.checkAvailability();
+	}
+	
+	@EventHandler
+	public void onServerStop(FMLServerStoppingEvent event)
+	{
+		WorldDataManager.reset();
+	}
+	
+	@SubscribeEvent
+	public void onWorldSave(Save event)
+	{
+		WorldDataManager.save();
 	}
 	
 	public static boolean checkFriendlyFire(EntityPlayer player, Entity entity, boolean refinedCheck)
