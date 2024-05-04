@@ -99,7 +99,7 @@ public class PacketNBT implements IMessage, IMessageHandler<PacketNBT, IMessage>
 			RECIEVERS.forEach(reciever ->
 			{
 				if (reciever.getID().equals(message.recieverID))
-					try {reciever.onServerRecieved(message.commandID, message.nbt);}
+					try {reciever.onServerRecieved(message.commandID, message.nbt, ctx.getServerHandler().player);}
 					catch (Exception e) {MACCore.error(e);}
 			});
 		});

@@ -11,13 +11,10 @@ import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.util.EnumType;
 import net.endermanofdoom.mac.util.FileUtil;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
 
 public class WorldData
 {
-	public static final boolean isRemote = FMLCommonHandler.instance().getEffectiveSide().equals(Side.CLIENT);
-	public boolean networkReady = !isRemote;
+	public boolean networkReady;
 	public long networkNextTicks;
 	protected final String fileName;
 	protected NBTTagCompound nbt;
@@ -34,10 +31,10 @@ public class WorldData
 			MACCore.fatal("Created duplicate world data objects");
 		this.fileName = fileName;
 		WorldDataManager.addWorldData(this);
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			nbt = new NBTTagCompound();
-			WorldDataManager.sync(fileName);
+			networkReady = true;
 		}
 		else
 			nbt = FileUtil.loadCompactNBT(FileUtil.getWorldFolderPath() + FileUtil.getWorldFolderName() + "data", fileName, true);
@@ -50,7 +47,7 @@ public class WorldData
 			MACCore.error("World Data " + fileName + " is not initialized. Create a new world data object");
 			return;
 		}
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot save world data " + fileName + " on the client");
 			return;
@@ -66,7 +63,7 @@ public class WorldData
 	public Object get(String key)
 	{
 		EnumType type = keyTypes.get(key);
-		
+		if (type == null) type = EnumType.OTHER;
 		switch(type)
 		{
 			case BOOLEAN: return getBoolean(key);
@@ -85,13 +82,14 @@ public class WorldData
 	
 	public void setBoolean(String key, boolean value)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		nbt.setBoolean(key, value);
 		keyTypes.put(key, EnumType.BOOLEAN);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
@@ -102,13 +100,14 @@ public class WorldData
 	
 	public void setByte(String key, byte value)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		nbt.setByte(key, value);
 		keyTypes.put(key, EnumType.BYTE);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
@@ -119,13 +118,14 @@ public class WorldData
 	
 	public void setInteger(String key, int value)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		nbt.setInteger(key, value);
 		keyTypes.put(key, EnumType.INTEGER);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
@@ -136,13 +136,14 @@ public class WorldData
 	
 	public void setShort(String key, short value)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		nbt.setShort(key, value);
 		keyTypes.put(key, EnumType.SHORT);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
@@ -153,13 +154,14 @@ public class WorldData
 	
 	public void setLong(String key, long value)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		nbt.setLong(key, value);
 		keyTypes.put(key, EnumType.LONG);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
@@ -170,13 +172,14 @@ public class WorldData
 	
 	public void setFloat(String key, float value)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		nbt.setFloat(key, value);
 		keyTypes.put(key, EnumType.FLOAT);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
@@ -187,13 +190,14 @@ public class WorldData
 	
 	public void setDouble(String key, double value)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		nbt.setDouble(key, value);
 		keyTypes.put(key, EnumType.DOUBLE);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
@@ -204,13 +208,14 @@ public class WorldData
 	
 	public void setUUID(String key, UUID value)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		nbt.setUniqueId(key, value);
 		keyTypes.put(key, EnumType.UUID);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
@@ -221,13 +226,14 @@ public class WorldData
 	
 	public void setString(String key, String value)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		nbt.setString(key, value);
 		keyTypes.put(key, EnumType.STRING);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
@@ -238,63 +244,66 @@ public class WorldData
 	
 	public <T> void setList(String key, List<T> value, EnumType listType)
 	{
-		if (isRemote)
+		if (WorldDataManager.isRemote())
 		{
 			MACCore.error("Cannot set world data " + fileName + " on the client");
 			return;
 		}
 		NBTTagCompound nbt = new NBTTagCompound();
-		EnumType type = EnumType.getType(value);
+		EnumType type = listTypes.containsKey(key) ? listTypes.get(key) : listType;
 		int size = value.size();
 		
-		switch (type)
+		switch (listType)
 		{
 			case BOOLEAN:
 				for (int i = 0; i < size; i++)
-					nbt.setBoolean(String.valueOf(i), (boolean) value.get(size));
+					nbt.setBoolean(String.valueOf(i), (boolean) value.get(i));
 				break;
 			case BYTE:
 				for (int i = 0; i < size; i++)
-					nbt.setByte(String.valueOf(i), (byte) value.get(size));
+					nbt.setByte(String.valueOf(i), (byte) value.get(i));
 				break;
 			case INTEGER:
 				for (int i = 0; i < size; i++)
-					nbt.setInteger(String.valueOf(i), (int) value.get(size));
+					nbt.setInteger(String.valueOf(i), (int) value.get(i));
 				break;
 			case SHORT:
 				for (int i = 0; i < size; i++)
-					nbt.setShort(String.valueOf(i), (short) value.get(size));
+					nbt.setShort(String.valueOf(i), (short) value.get(i));
 				break;
 			case LONG:
 				for (int i = 0; i < size; i++)
-					nbt.setLong(String.valueOf(i), (long) value.get(size));
+					nbt.setLong(String.valueOf(i), (long) value.get(i));
 				break;
 			case FLOAT:
 				for (int i = 0; i < size; i++)
-					nbt.setFloat(String.valueOf(i), (float) value.get(size));
+					nbt.setFloat(String.valueOf(i), (float) value.get(i));
 				break;
 			case DOUBLE:
 				for (int i = 0; i < size; i++)
-					nbt.setDouble(String.valueOf(i), (double) value.get(size));
+					nbt.setDouble(String.valueOf(i), (double) value.get(i));
 				break;
 			case UUID:
 				for (int i = 0; i < size; i++)
-					nbt.setUniqueId(String.valueOf(i), (UUID) value.get(size));
+					nbt.setUniqueId(String.valueOf(i), (UUID) value.get(i));
 				break;
 			case STRING:
 				for (int i = 0; i < size; i++)
-					nbt.setString(String.valueOf(i), (String) value.get(size));
+					nbt.setString(String.valueOf(i), (String) value.get(i));
 				break;
 			default:
 				return;
 		}
+		
 		this.nbt.setTag(key, nbt);
 		keyTypes.put(key, EnumType.LIST);
 		listTypes.put(key, type);
+		networkQueue.add(key);
 		networkReady = true;
 	}
 	
-	public List<?> getList(String key, EnumType listType)
+	@SuppressWarnings("unchecked")
+	public <T> List<T> getList(String key, EnumType listType)
 	{
 		NBTTagCompound nbt = this.nbt.getCompoundTag(key);
 		Set<String> keys = nbt.getKeySet();
@@ -342,8 +351,7 @@ public class WorldData
 			default:
 				return null;
 		}
-		
-		return list;
+		return (List<T>) list;
 	}
 	
 	public NBTTagCompound build()
@@ -369,6 +377,7 @@ public class WorldData
 		NBTTagCompound nbt = new NBTTagCompound();
 		Object value = get(key);
 		EnumType type = keyTypes.get(key);
+		if (type == null) type = EnumType.OTHER;
 		nbt.setString("key", key);
 		nbt.setInteger("type", type.ordinal());
 		
@@ -420,51 +429,52 @@ public class WorldData
 		for(String key : keys)
 		{
 			valueNbt = nbt.getCompoundTag(key);
+			String index = valueNbt.getString("key");
 			type = EnumType.valueOf(valueNbt.getInteger("type"));
 			if (valueNbt.hasKey("listType"))
 				listType = EnumType.valueOf(valueNbt.getInteger("listType"));
 			switch (type)
 			{
 				case BOOLEAN:
-					keyTypes.put(key, type);
-					nbt.setBoolean(key, valueNbt.getBoolean("value"));
+					keyTypes.put(index, type);
+					this.nbt.setBoolean(index, valueNbt.getBoolean("value"));
 					break;
 				case BYTE:
-					keyTypes.put(key, type);
-					nbt.setByte(key, valueNbt.getByte("value"));
+					keyTypes.put(index, type);
+					this.nbt.setByte(index, valueNbt.getByte("value"));
 					break;
 				case INTEGER:
-					keyTypes.put(key, type);
-					nbt.setInteger(key, valueNbt.getInteger("value"));
+					keyTypes.put(index, type);
+					this.nbt.setInteger(index, valueNbt.getInteger("value"));
 					break;
 				case SHORT:
-					keyTypes.put(key, type);
-					nbt.setShort(key, valueNbt.getShort("value"));
+					keyTypes.put(index, type);
+					this.nbt.setShort(index, valueNbt.getShort("value"));
 					break;
 				case LONG:
-					keyTypes.put(key, type);
-					nbt.setLong(key, valueNbt.getLong("value"));
+					keyTypes.put(index, type);
+					this.nbt.setLong(index, valueNbt.getLong("value"));
 					break;
 				case FLOAT:
-					keyTypes.put(key, type);
-					nbt.setFloat(key, valueNbt.getFloat("value"));
+					keyTypes.put(index, type);
+					this.nbt.setFloat(index, valueNbt.getFloat("value"));
 					break;
 				case DOUBLE:
-					keyTypes.put(key, type);
-					nbt.setDouble(key, valueNbt.getDouble("value"));
+					keyTypes.put(index, type);
+					this.nbt.setDouble(index, valueNbt.getDouble("value"));
 					break;
 				case UUID:
-					keyTypes.put(key, type);
-					nbt.setUniqueId(key, valueNbt.getUniqueId("value"));
+					keyTypes.put(index, type);
+					this.nbt.setUniqueId(index, valueNbt.getUniqueId("value"));
 					break;
 				case STRING:
-					keyTypes.put(key, type);
-					nbt.setString(key, valueNbt.getString("value"));
+					keyTypes.put(index, type);
+					this.nbt.setString(index, valueNbt.getString("value"));
 					break;
 				case LIST:
-					keyTypes.put(key, type);
-					listTypes.put(key, listType);
-					nbt.setTag(key, valueNbt.getCompoundTag("value"));
+					keyTypes.put(index, type);
+					listTypes.put(index, listType);
+					this.nbt.setTag(index, valueNbt.getCompoundTag("value"));
 					break;
 				default:
 					

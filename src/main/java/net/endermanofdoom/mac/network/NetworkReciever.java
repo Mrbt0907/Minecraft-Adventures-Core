@@ -4,6 +4,7 @@ import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.dialogue.SubDialogueMessage;
 import net.endermanofdoom.mac.interfaces.INetworkReciever;
 import net.endermanofdoom.mac.world.WorldDataManager;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class NetworkReciever implements INetworkReciever
@@ -29,7 +30,7 @@ public class NetworkReciever implements INetworkReciever
 				WorldDataManager.onNetworkRecieved(nbt);
 				break;
 			case 3:
-				
+				WorldDataManager.onNetworkRecieved(nbt);
 				break;
 			default:
 				MACCore.warn("NetworkManager has recieved an unknown network message from the server with id of " + commandID + ". Skipping...");
@@ -37,12 +38,12 @@ public class NetworkReciever implements INetworkReciever
 	}
 
 	@Override
-	public void onServerRecieved(int commandID, NBTTagCompound nbt)
+	public void onServerRecieved(int commandID, NBTTagCompound nbt, EntityPlayerMP player)
 	{
 		switch (commandID)
 		{
 			case 2:
-				WorldDataManager.syncToPlayer(nbt.getString("fileName"), nbt.getUniqueId("player"));
+				WorldDataManager.syncToPlayer(nbt.getString("fileName"), player);
 				break;
 			case 3:
 				

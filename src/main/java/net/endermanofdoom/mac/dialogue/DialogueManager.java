@@ -1,7 +1,6 @@
 package net.endermanofdoom.mac.dialogue;
 
 import net.endermanofdoom.mac.MACCore;
-import net.endermanofdoom.mac.network.NetworkHandler;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -23,7 +22,7 @@ public class DialogueManager
 			else
 			{
 				MACCore.debug("Sending forced sub dialogue to player " + player.getName());
-				NetworkHandler.sendToClients(MACCore.NETWORK.getID(), 1, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()), player);
+				MACCore.NETWORK.sendToClients(1, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()), player);
 			}
 		else
 			if (MACCore.isRemote)
@@ -31,7 +30,7 @@ public class DialogueManager
 			else
 			{
 				MACCore.debug("Sending sub dialogue to player " + player.getName());
-				NetworkHandler.sendToClients(MACCore.NETWORK.getID(), 0, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()), player);
+				MACCore.NETWORK.sendToClients(0, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()), player);
 			}
 	}
 	
@@ -43,12 +42,12 @@ public class DialogueManager
 			else if (world != null)
 			{
 				MACCore.debug("Sending forced sub dialogue to all players in dimension " + world.provider.getDimension());
-				NetworkHandler.sendToClients(MACCore.NETWORK.getID(), 1, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()), world);
+				MACCore.NETWORK.sendToClients(1, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()), world);
 			}
 			else
 			{
 				MACCore.debug("Sending forced sub dialogue to all players in the server");
-				NetworkHandler.sendToClients(MACCore.NETWORK.getID(), 1, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()));
+				MACCore.NETWORK.sendToClients(1, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()));
 			}
 		else
 			if (MACCore.isRemote)
@@ -56,12 +55,12 @@ public class DialogueManager
 			else if (world != null)
 			{
 				MACCore.debug("Sending sub dialogue to all players in dimension " + world.provider.getDimension());
-				NetworkHandler.sendToClients(MACCore.NETWORK.getID(), 0, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()), world);
+				MACCore.NETWORK.sendToClients(0, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()), world);
 			}
 			else
 			{
 				MACCore.debug("Sending sub dialogue to all players in the server");
-				NetworkHandler.sendToClients(MACCore.NETWORK.getID(), 0, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()));
+				MACCore.NETWORK.sendToClients(0, new SubDialogueMessage(displayName, content, sprite, nameColor, backgroundColor).writeNBT(new NBTTagCompound()));
 			}
 	}
 }

@@ -5,25 +5,28 @@ import java.util.Map;
 import java.util.UUID;
 
 import net.endermanofdoom.mac.MACCore;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class WorldDataManager
 {
-	public static final boolean isRemote = FMLCommonHandler.instance().getEffectiveSide().equals(Side.CLIENT);
+	private static final FMLCommonHandler HANDLER = FMLCommonHandler.instance();
 	private static final Map<String, WorldData> worldData = new HashMap<String, WorldData>();
-	public static long ticks;
+	public static long ticks, tickDelay;
 	private static boolean isActive;
 	
 	public static void tick()
 	{
-		if (!isActive) return;
-		
-		if (!isRemote)
+		if (!isActive)
+		{
+			tickDelay = ticks + 1L;
+			return;
+		}
+		if (!isRemote())
 		{
 			worldData.forEach((key, data) -> {
 				if (data.networkReady && ticks >= data.networkNextTicks)
@@ -32,10 +35,19 @@ public class WorldDataManager
 					data.networkNextTicks = ticks + 10L;
 					sync(key);
 				}
-				data.networkNextTicks++;
 			});
 		}
-		
+		else
+		{
+			if (tickDelay == ticks)
+				worldData.forEach((key, data) -> {
+					if (data.networkReady)
+					{
+						data.networkReady = false;
+						sync(key);
+					}
+				});
+		}
 		ticks++;
 	}
 	
@@ -51,7 +63,7 @@ public class WorldDataManager
 	
 	public static void save()
 	{
-		if (isRemote)
+		if (isRemote())
 		{
 			MACCore.error("Cannot save all world data on the client");
 			return;
@@ -64,11 +76,11 @@ public class WorldDataManager
 	{
 		if (exists(fileName))
 		{
-			if (isRemote)
+			if (isRemote())
 			{
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setString("fileName", fileName);
-				nbt.setUniqueId("player", net.minecraft.client.Minecraft.getMinecraft().player.getUniqueID());
+				MACCore.debug("Sending sync to server");
 				MACCore.NETWORK.sendToServer(2, nbt);
 			}
 			else
@@ -82,19 +94,13 @@ public class WorldDataManager
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setString("fileName", fileName);
 				nbt.setTag("data", data.build());
-				MACCore.NETWORK.sendToClients(2, nbt);
+				MACCore.NETWORK.sendToClients(3, nbt);
 			}
 		}
 	}
 	
-	public static void syncToPlayer(String fileName, UUID playerUUID)
+	public static void syncToPlayer(String fileName, EntityPlayerMP player)
 	{
-		EntityPlayerMP player = FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayerByUUID(playerUUID);
-		if (player == null)
-		{
-			MACCore.warn("Could not find player with the uuid " + playerUUID + " for world data sync. Skipping...");
-			return;
-		}
 		WorldData data = worldData.get(fileName);
 		if (data == null)
 		{
@@ -112,9 +118,9 @@ public class WorldDataManager
 		return worldData.containsKey(fileName);
 	}
 	
-	public static void checkAvailability()
+	public static void setAvailable()
 	{
-		isActive = DimensionManager.getWorld(0) != null;
+		isActive = true;
 	}
 	
 	public static boolean isAvailable()
@@ -124,8 +130,13 @@ public class WorldDataManager
 	
 	public static void reset()
 	{
-		isActive = false;
 		worldData.clear();
+		isActive = false;
+	}
+	
+	public static boolean isRemote()
+	{
+		return HANDLER.getMinecraftServerInstance() == null || HANDLER.getEffectiveSide().equals(Side.CLIENT) && !HANDLER.getMinecraftServerInstance().isSinglePlayer();
 	}
 	
 	@SideOnly(Side.CLIENT)
