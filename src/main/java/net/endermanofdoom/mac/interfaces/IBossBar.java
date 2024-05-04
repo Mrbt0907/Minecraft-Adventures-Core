@@ -23,13 +23,13 @@ public interface IBossBar
 	
 	public default int getHealthBarLength() {return 208;}
 	
-	public default int getStaminaBarStart() {return 24;}
+	public default int getStaminaBarStart() {return 0;}
 	
-	public default int getStaminaBarLength() {return 159;}
+	public default int getStaminaBarLength() {return 105;}
 	
 	public default int getNameBarStart() {return -2;}
 	
-	public default int getHealthNameStart() {return 8;}
+	public default int getHealthNameStart() {return 6;}
 	
 	public double getBarHealth();
 	
@@ -41,6 +41,6 @@ public interface IBossBar
 	
 	public default ResourceLocation getBarTexture() {return DEFAULT_BOSS_BAR;}
 	
-	public default int[] getBarColor() {return new int[] {255, 0, 0, 255, 135, 0};}
+	public default int[] getBarColor() {return new int[] {255, 0, 255, 255, 135, 0};}
 	public String getBarName();
 }
