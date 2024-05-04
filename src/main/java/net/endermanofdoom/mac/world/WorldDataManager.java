@@ -2,10 +2,7 @@ package net.endermanofdoom.mac.world;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
-
 import net.endermanofdoom.mac.MACCore;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.common.FMLCommonHandler;

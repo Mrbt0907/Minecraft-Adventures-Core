@@ -10,15 +10,9 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
-<<<<<<< HEAD
 version = "2.5"
 group = "net.endermanofdoom.mac"
 archivesBaseName = "MAC_API"
-=======
-version = "1.0"
-group = "net.endermanofdoom.mac"
-archivesBaseName = "MCA API"
->>>>>>> branch 'master' of https://github.com/Mrbt0907/Minecraft-Adventures-Core.git
 
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava {

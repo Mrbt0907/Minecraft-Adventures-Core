@@ -257,31 +257,31 @@ public class WorldData
 		{
 			case BOOLEAN:
 				for (int i = 0; i < size; i++)
-					nbt.setBoolean(String.valueOf(i), (boolean) value.get(i));
+					nbt.setBoolean(String.valueOf(i), (Boolean) value.get(i));
 				break;
 			case BYTE:
 				for (int i = 0; i < size; i++)
-					nbt.setByte(String.valueOf(i), (byte) value.get(i));
+					nbt.setByte(String.valueOf(i), (Byte) value.get(i));
 				break;
 			case INTEGER:
 				for (int i = 0; i < size; i++)
-					nbt.setInteger(String.valueOf(i), (int) value.get(i));
+					nbt.setInteger(String.valueOf(i), (Integer) value.get(i));
 				break;
 			case SHORT:
 				for (int i = 0; i < size; i++)
-					nbt.setShort(String.valueOf(i), (short) value.get(i));
+					nbt.setShort(String.valueOf(i), (Short) value.get(i));
 				break;
 			case LONG:
 				for (int i = 0; i < size; i++)
-					nbt.setLong(String.valueOf(i), (long) value.get(i));
+					nbt.setLong(String.valueOf(i), (Long) value.get(i));
 				break;
 			case FLOAT:
 				for (int i = 0; i < size; i++)
-					nbt.setFloat(String.valueOf(i), (float) value.get(i));
+					nbt.setFloat(String.valueOf(i), (Float) value.get(i));
 				break;
 			case DOUBLE:
 				for (int i = 0; i < size; i++)
-					nbt.setDouble(String.valueOf(i), (double) value.get(i));
+					nbt.setDouble(String.valueOf(i), (Double) value.get(i));
 				break;
 			case UUID:
 				for (int i = 0; i < size; i++)
