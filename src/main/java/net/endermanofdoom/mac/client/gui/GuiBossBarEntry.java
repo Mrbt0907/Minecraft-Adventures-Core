@@ -35,7 +35,7 @@ public class GuiBossBarEntry
 	
 	public void onUpdate()
 	{
-		
+		rgb = entry.getBarColor();
 		if (hurtTime > 0)
 		hurtTime --;
 		if (healTime > 0)
