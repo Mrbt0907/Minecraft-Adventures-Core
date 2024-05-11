@@ -8,26 +8,26 @@ import net.minecraft.entity.ai.attributes.IAttributeInstance;
 
 public class ModifyableAttributeModifier extends AttributeModifier {
 
-	public double amount;
-    public int operation;
+	public double value;
+    public int op;
 	private final double defaultAmount;
 	private final int defaultOperation;
     
 	public ModifyableAttributeModifier(String nameIn, double amountIn, int operationIn)
 	{
 		super(nameIn, amountIn, operationIn);
-		amount = amountIn;
+		value = amountIn;
 		defaultAmount = amountIn;
-		operation = operationIn;
+		op = operationIn;
 		defaultOperation = operationIn;
 	}
 
 	public ModifyableAttributeModifier(UUID idIn, String nameIn, double amountIn, int operationIn)
     {
         super(idIn, nameIn, amountIn, operationIn);
-		amount = amountIn;
+		value = amountIn;
 		defaultAmount = amountIn;
-		operation = operationIn;
+		op = operationIn;
 		defaultOperation = operationIn;
     }
 	
@@ -83,19 +83,19 @@ public class ModifyableAttributeModifier extends AttributeModifier {
 	
 	public void setDefault()
 	{
-		amount = defaultAmount;
-		operation = defaultOperation;
+		value = defaultAmount;
+		op = defaultOperation;
 	}
 	
 	@Override
 	public int getOperation()
     {
-        return operation;
+        return op;
     }
 
 	@Override
     public double getAmount()
     {
-        return amount;
+        return value;
     }
 }
