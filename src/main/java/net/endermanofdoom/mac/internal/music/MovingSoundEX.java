@@ -1,7 +1,7 @@
 package net.endermanofdoom.mac.internal.music;
 
 import net.endermanofdoom.mac.MACCore;
-import net.endermanofdoom.mac.util.math.Maths.Vec3;
+import net.endermanofdoom.mac.util.math.Vec3;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.MovingSound;
 import net.minecraft.entity.Entity;

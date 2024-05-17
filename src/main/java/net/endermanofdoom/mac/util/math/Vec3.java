@@ -1,5 +1,6 @@
 package net.endermanofdoom.mac.util.math;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -20,6 +21,13 @@ public class Vec3
 		posX = pos.x;
 		posY = pos.y;
 		posZ = pos.z;
+	}
+	/**Used to create 3D vectors for positioning calculations*/
+	public Vec3(Entity entity)
+	{
+		posX = entity.posX;
+		posY = entity.posY;
+		posZ = entity.posZ;
 	}
 	/**Used to create 3D vectors for positioning calculations*/
 	public Vec3(BlockPos pos)
@@ -55,10 +63,11 @@ public class Vec3
 		return new BlockPos(posX, posY, posZ);
 	}
 	
+	
 	public net.minecraft.util.math.Vec3d toVec3MC()
 	{
-		return new net.minecraft.util.math.Vec3d(posX, posY, posZ);
-	}
+    	return new net.minecraft.util.math.Vec3d(posX, posY, posZ);
+    }
 	
 	public Vec3 copy()
 	{
@@ -76,7 +85,7 @@ public class Vec3
 	/**Calculates the distance between this 3D vector and another set of positions*/
 	public double distance(double posX, double posY, double posZ)
 	{
-		return Math.sqrt((this.posX - posX) * (this.posX - posX) + (this.posY - posY) * (this.posY - posY) + (this.posZ - posZ) * (this.posZ - posZ));
+		return Maths.distance(this.posX, this.posY, this.posZ, posX, posY, posZ);
 	}
 	
 	/**Calculates the distance between this 3D vector and another 2D vector. The posY value for the 2D vector is equal to posY of this vector*/
@@ -91,8 +100,33 @@ public class Vec3
 		return distance(vector.posX, vector.posY, vector.posZ);
 	}
 	
+	/**Calculates the square rooted distance between this 3D vector and another set of positions*/
+	public double distanceSq(double posX, double posY, double posZ)
+	{
+		return Maths.distanceSq(this.posX, this.posY, this.posZ, posX, posY, posZ);
+	}
+	
+	/**Calculates the square rooted distance between this 3D vector and another 2D vector. The posY value for the 2D vector is equal to posY of this vector*/
+	public double distanceSq(Vec vector)
+	{
+		return distanceSq(vector.posX, posY, vector.posZ);
+	}
+	
+	/**Calculates the square rooted distance between this 3D vector and another 3D vector*/
+	public double distanceSq(Vec3 vector)
+	{
+		return distanceSq(vector.posX, vector.posY, vector.posZ);
+	}
+	
+	/**Calculates the square rooted speed of this vector*/
 	public double speed()
 	{
-		return Math.sqrt(posX * posX + posY * posY + posZ * posZ);
+		return Maths.speed(posX, posY, posZ);
+	}
+	
+	/**Calculates the square rooted speed of this vector*/
+	public double speedSq()
+	{
+		return Maths.speedSq(posX, posY, posZ);
 	}
 }
