@@ -239,7 +239,7 @@ public abstract class ItemBowEX extends ItemBow
 		if (shooter instanceof EntityPlayer && maxUseTime - timeLeft > getChargeTime(stack))
 		{
 			shoot(stack, shooter.world, (EntityPlayer) shooter, 0);
-			ReflectionUtil.set(EntityLivingBase.class, shooter, "activeItemStackUseCount", "obf_bow", maxUseTime);
+			shooter.activeItemStackUseCount = maxUseTime;
 		}
 	}
 	

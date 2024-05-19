@@ -1,9 +1,14 @@
 package net.endermanofdoom.mac.command;
 
+import java.util.List;
+
+import net.endermanofdoom.mac.MACCore;
+import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.text.TextComponentString;
 
 public class CommandMAC extends CommandBase
 {
@@ -23,6 +28,28 @@ public class CommandMAC extends CommandBase
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
 	{
-		
+		if (args.length > 0)
+			switch(args[0].toLowerCase())
+			{
+				case "class":
+					if (args.length > 1)
+					{
+						List<String> entries = ReflectionUtil.viewFields(args[1]);
+						String output = "RESULTS FOR CLASS " + args[1];
+						for (String entry : entries)
+							output += "\n" + entry;
+						entries = ReflectionUtil.viewMethods(args[1]);
+						for (String entry : entries)
+							output += "\n" + entry;
+						entries = null;
+						MACCore.info(output);
+						sender.sendMessage(new TextComponentString("Sent class fields and methods to latest.log"));
+					}
+					else
+						sender.sendMessage(new TextComponentString("/mac class <Class To Get>"));
+					break;
+				default:
+					sender.sendMessage(new TextComponentString("/mac <class>"));
+			}
 	}
 }

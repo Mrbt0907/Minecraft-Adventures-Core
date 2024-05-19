@@ -63,7 +63,7 @@ public class CommonEventHandler
 		{
 			victim.hurtResistantTime = 0;
 			if (victim instanceof EntityLivingBase)
-				ReflectionUtil.set(EntityLivingBase.class, (EntityLivingBase) victim, "recentlyHit", "field_70718_bc", 100);
+				((EntityLivingBase)victim).recentlyHit = 100;
 		}
 	}
 	

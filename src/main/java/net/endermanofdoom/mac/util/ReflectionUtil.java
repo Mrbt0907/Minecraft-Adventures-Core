@@ -1,6 +1,7 @@
 package net.endermanofdoom.mac.util;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,7 +78,7 @@ public class ReflectionUtil
 		return null;
 	}
 
-	public static List<String> view(String... classes)
+	public static List<String> viewFields(String... classes)
 	{
 		List<String> found = new ArrayList<String>();
 		for (int i = 0; i < classes.length; i++)
@@ -89,8 +90,26 @@ public class ReflectionUtil
 				for (int ii = 0; ii < fields.length; ii++)	
 				try
 				{
-					MACCore.debug("Found variable:  " + Modifier.toString(fields[ii].getModifiers()) + " " + fields[ii].getType().getSimpleName() + " " + fields[ii].getName() + ";");
 					found.add("Found variable:  " + Modifier.toString(fields[ii].getModifiers()) + " " + fields[ii].getType().getSimpleName() + " " + fields[ii].getName() + ";");
+				}
+				catch (Exception e) {}
+			}
+			catch (Exception e) {}
+		return found;
+	}
+	public static List<String> viewMethods(String... classes)
+	{
+		List<String> found = new ArrayList<String>();
+		for (int i = 0; i < classes.length; i++)
+			try
+			{
+				Class <?> clazz = (Class<?>) Class.forName(classes[i]);
+				Method[] fields = clazz.getDeclaredMethods();
+				
+				for (int ii = 0; ii < fields.length; ii++)	
+				try
+				{
+					found.add("Found method:  " + Modifier.toString(fields[ii].getModifiers()) + " " + fields[ii].getReturnType().getSimpleName() + " " + fields[ii].getName() + ";");
 				}
 				catch (Exception e) {}
 			}

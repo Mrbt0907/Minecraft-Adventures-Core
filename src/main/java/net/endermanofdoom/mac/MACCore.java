@@ -65,8 +65,8 @@ public class MACCore
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(CommonEventHandler.class);
 		debug("Overwriting fields...");
-		ReflectionUtil.set(RangedAttribute.class, (RangedAttribute)SharedMonsterAttributes.MAX_HEALTH, "maximumValue", "field_111118_b", Integer.MAX_VALUE);
-		ReflectionUtil.set(RangedAttribute.class, (RangedAttribute)SharedMonsterAttributes.ATTACK_DAMAGE, "maximumValue", "field_111118_b", Integer.MAX_VALUE);
+		((RangedAttribute)SharedMonsterAttributes.MAX_HEALTH).maximumValue = Double.MAX_VALUE;
+		((RangedAttribute)SharedMonsterAttributes.ATTACK_DAMAGE).maximumValue = Double.MAX_VALUE;
 		proxy.preInit(e);
 	}
 	
