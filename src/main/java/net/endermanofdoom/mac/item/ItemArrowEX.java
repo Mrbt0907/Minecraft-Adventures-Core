@@ -2,11 +2,14 @@ package net.endermanofdoom.mac.item;
 
 import net.endermanofdoom.mac.entity.EntityArrowEX;
 import net.endermanofdoom.mac.interfaces.IArrowBehavior;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityEnderman;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -25,6 +28,24 @@ public abstract class ItemArrowEX extends ItemArrow
 	public abstract void onArrowHit(World world, EntityLivingBase shooter, Entity victim, EntityArrowEX arrow);
 	public abstract void onArrowHitBlock(World world, EntityLivingBase shooter, RayTraceResult raytrace, EntityArrowEX arrow);
 	public abstract void onArrowStop(World world, EntityLivingBase shooter, RayTraceResult raytrace, EntityArrowEX arrow);
+
+	public boolean onPierce(World world, EntityLivingBase shooter, Entity victim, RayTraceResult raytrace, EntityArrowEX arrow)
+	{
+		return victim instanceof EntityEnderman;
+	}
+	public boolean onPierceBlock(World world, EntityLivingBase shooter, IBlockState state, BlockPos position, RayTraceResult raytrace, EntityArrowEX arrow)
+	{
+		return false;
+	}
+	public boolean onDamageEntity(World world, EntityLivingBase shooter, Entity victim, RayTraceResult raytrace, EntityArrowEX arrow, float damage, float velocity)
+	{
+		DamageSource damagesource = DamageSource.causeArrowDamage(arrow, shooter == null ? arrow : shooter);
+        
+        if (arrow.isBurning() && !(victim instanceof EntityEnderman))
+            victim.setFire(5);
+        
+		return victim.attackEntityFrom(damagesource, damage);
+	}
 	
 	public double getBaseDamage()
 	{
@@ -43,7 +64,7 @@ public abstract class ItemArrowEX extends ItemArrow
 		return null;
 	}
 	
-	public boolean canCollide(World world, Entity entity, EntityArrowEX arrow)
+	public boolean canCollide(World world, Entity victim, EntityArrowEX arrow)
 	{
 		return true;
 	}
