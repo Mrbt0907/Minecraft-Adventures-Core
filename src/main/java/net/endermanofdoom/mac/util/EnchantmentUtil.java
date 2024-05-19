@@ -1,6 +1,5 @@
 package net.endermanofdoom.mac.util;
 
-import net.endermanofdoom.mac.MACCore;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

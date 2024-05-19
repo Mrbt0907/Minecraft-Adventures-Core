@@ -1,6 +1,5 @@
 package net.endermanofdoom.mac.internal.events;
 
-import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.events.WorldEvent;
 import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.endermanofdoom.mac.world.WorldDataManager;

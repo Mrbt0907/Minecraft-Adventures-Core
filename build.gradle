@@ -1,46 +1,52 @@
-buildscript {
-    repositories {
+buildscript
+{
+    repositories
+    {
         jcenter()
-        maven { url = "https://files.minecraftforge.net/maven" }
-    }
-    dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-    }
+		maven { url = "https://files.minecraftforge.net/maven" }
+	}
+	dependencies {classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'}
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
-//Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+project.mkdir "libs"
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
-version = "2.5"
-group = "net.endermanofdoom.mac"
-archivesBaseName = "MAC_API"
+version = '2.6'
+group = 'net.endermanofdoom.mac'
+archivesBaseName = 'MAC_API'
 
-sourceCompatibility = targetCompatibility = '1.8'
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-}
-
-minecraft {
+minecraft
+{
     version = "1.12.2-14.23.5.2847"
     runDir = "run"
     mappings = "snapshot_20171003"
+    makeObfSourceJar = false
 }
 
-dependencies {}
+repositories
+{
+	maven
+	{
+		name 'Progwml6'
+		url "http://dvs1.progwml6.com/files/maven"
+	}
+}
 
-processResources {
+dependencies
+{
+   runtime "mezz.jei:jei_1.12.2:4.13.1.225"
+}
+
+processResources
+{
     inputs.property "version", project.version
     inputs.property "mcversion", project.minecraft.version
-
-    // replace stuff in mcmod.info, nothing else
-    from(sourceSets.main.resources.srcDirs) {
+    from(sourceSets.main.resources.srcDirs)
+    {
         include 'mcmod.info'
-                
-        // replace version and mcversion
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-        
-    // copy everything else except the mcmod.info
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
+    from(sourceSets.main.resources.srcDirs) {exclude 'mcmod.info'}
+    rename '(ender_at.cfg)', 'META-INF/$1'
 }
+jar {manifest {attributes 'FMLAT': 'ender_at.cfg'}}

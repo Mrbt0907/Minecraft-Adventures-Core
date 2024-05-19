@@ -40,7 +40,7 @@ public class MACCore
 {
 	public static final String MODNAME = "Minecraft Adventures Core";
 	public static final String MODID = "mac";
-	public static final String VERSION = "2.5";
+	public static final String VERSION = "2.6";
 	public static final String CLIENT = "net.endermanofdoom.mac.ClientProxy";
 	public static final String SERVER = "net.endermanofdoom.mac.CommonProxy";
 	

@@ -8,7 +8,6 @@ import net.endermanofdoom.mac.util.EnchantmentUtil;
 import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.endermanofdoom.mac.util.math.Vec;
 import net.endermanofdoom.mac.util.math.Vec3;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;

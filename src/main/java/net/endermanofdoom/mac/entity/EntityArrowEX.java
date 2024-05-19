@@ -2,13 +2,24 @@ package net.endermanofdoom.mac.entity;
 
 import net.endermanofdoom.mac.interfaces.IArrowBehavior;
 import net.endermanofdoom.mac.item.ItemArrowEX;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntityEnderman;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.SPacketChangeGameState;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -124,9 +135,9 @@ public class EntityArrowEX extends EntityArrow
     {
 		super.arrowHit(victim);
 		if (item != null)
-			item.onArrowHit(world, shootingEntity instanceof EntityLivingBase ? (EntityLivingBase) shootingEntity : null, victim, null);
+			item.onArrowHit(world, shootingEntity instanceof EntityLivingBase ? (EntityLivingBase) shootingEntity : null, victim, this);
 		if (customBehavior != null)
-			customBehavior.onArrowHit(world, shootingEntity instanceof EntityLivingBase ? (EntityLivingBase) shootingEntity : null, victim, null);
+			customBehavior.onArrowHit(world, shootingEntity instanceof EntityLivingBase ? (EntityLivingBase) shootingEntity : null, victim, this);
     }
 	
 	@Override
@@ -142,13 +153,13 @@ public class EntityArrowEX extends EntityArrow
 		EntityLivingBase shooter = shootingEntity instanceof EntityLivingBase ? (EntityLivingBase) shootingEntity : null;
 		if (item != null)
 			switch(result.typeOfHit)
-			{	
+			{
 				case BLOCK:
 					if (item.canCollide(world, result.getBlockPos(), this))
 					{
-						item.onArrowHitBlock(world, shooter, result.getBlockPos(), this);
+						item.onArrowHitBlock(world, shooter, result, this);
 						if (customBehavior != null)
-							customBehavior.onArrowHitBlock(world, shooter, result.getBlockPos(), this);
+							customBehavior.onArrowHitBlock(world, shooter, result, this);
 					}
 					else
 						return;
@@ -165,12 +176,128 @@ public class EntityArrowEX extends EntityArrow
 					break;
 				default:
 			}
-		super.onHit(result);
+		onHitPost(result);
 		if (item != null)
-			item.onArrowStop(world, shooter, this);
+			item.onArrowStop(world, shooter, result, this);
 		if (customBehavior != null)
-			customBehavior.onArrowStop(world, shooter, this);
+			customBehavior.onArrowStop(world, shooter, result, this);
     }
+	
+	protected void onHitPost(RayTraceResult raytrace)
+	{
+		Entity entity = raytrace.entityHit;
+
+        if (entity != null)
+        {
+            float f = MathHelper.sqrt(motionX * motionX + motionY * motionY + motionZ * motionZ);
+            int i = MathHelper.ceil((double)f * damage);
+
+            if (getIsCritical())
+                i += rand.nextInt(i / 2 + 2);
+
+            DamageSource damagesource;
+
+            if (shootingEntity == null)
+            {
+                damagesource = DamageSource.causeArrowDamage(this, this);
+            }
+            else
+            {
+                damagesource = DamageSource.causeArrowDamage(this, shootingEntity);
+            }
+
+            if (isBurning() && !(entity instanceof EntityEnderman))
+            {
+                entity.setFire(5);
+            }
+
+            if (entity.attackEntityFrom(damagesource, (float)i))
+            {
+                if (entity instanceof EntityLivingBase)
+                {
+                    EntityLivingBase entitylivingbase = (EntityLivingBase)entity;
+
+                    if (!world.isRemote)
+                    {
+                        entitylivingbase.setArrowCountInEntity(entitylivingbase.getArrowCountInEntity() + 1);
+                    }
+
+                    if (knockbackStrength > 0)
+                    {
+                        float f1 = MathHelper.sqrt(motionX * motionX + motionZ * motionZ);
+
+                        if (f1 > 0.0F)
+                        {
+                            entitylivingbase.addVelocity(motionX * (double)knockbackStrength * 0.6000000238418579D / (double)f1, 0.1D, motionZ * (double)knockbackStrength * 0.6000000238418579D / (double)f1);
+                        }
+                    }
+
+                    if (shootingEntity instanceof EntityLivingBase)
+                    {
+                        EnchantmentHelper.applyThornEnchantments(entitylivingbase, shootingEntity);
+                        EnchantmentHelper.applyArthropodEnchantments((EntityLivingBase)shootingEntity, entitylivingbase);
+                    }
+
+                    arrowHit(entitylivingbase);
+
+                    if (shootingEntity != null && entitylivingbase != shootingEntity && entitylivingbase instanceof EntityPlayer && shootingEntity instanceof EntityPlayerMP)
+                    {
+                        ((EntityPlayerMP)shootingEntity).connection.sendPacket(new SPacketChangeGameState(6, 0.0F));
+                    }
+                }
+
+                playSound(SoundEvents.ENTITY_ARROW_HIT, 1.0F, 1.2F / (rand.nextFloat() * 0.2F + 0.9F));
+
+                if (!(entity instanceof EntityEnderman))
+                {
+                    setDead();
+                }
+            }
+            else
+            {
+                motionX *= -0.10000000149011612D;
+                motionY *= -0.10000000149011612D;
+                motionZ *= -0.10000000149011612D;
+                rotationYaw += 180.0F;
+                prevRotationYaw += 180.0F;
+                ticksInAir = 0;
+
+                if (!world.isRemote && motionX * motionX + motionY * motionY + motionZ * motionZ < 0.0010000000474974513D)
+                {
+                    if (pickupStatus == EntityArrow.PickupStatus.ALLOWED)
+                    {
+                        entityDropItem(getArrowStack(), 0.1F);
+                    }
+
+                    setDead();
+                }
+            }
+        }
+        else
+        {
+            BlockPos blockpos = raytrace.getBlockPos();
+            xTile = blockpos.getX();
+            yTile = blockpos.getY();
+            zTile = blockpos.getZ();
+            IBlockState iblockstate = world.getBlockState(blockpos);
+            inTile = iblockstate.getBlock();
+            inData = inTile.getMetaFromState(iblockstate);
+            motionX = (double)((float)(raytrace.hitVec.x - posX));
+            motionY = (double)((float)(raytrace.hitVec.y - posY));
+            motionZ = (double)((float)(raytrace.hitVec.z - posZ));
+            float f2 = MathHelper.sqrt(motionX * motionX + motionY * motionY + motionZ * motionZ);
+            posX -= motionX / (double)f2 * 0.05000000074505806D;
+            posY -= motionY / (double)f2 * 0.05000000074505806D;
+            posZ -= motionZ / (double)f2 * 0.05000000074505806D;
+            playSound(SoundEvents.ENTITY_ARROW_HIT, 1.0F, 1.2F / (rand.nextFloat() * 0.2F + 0.9F));
+            inGround = true;
+            arrowShake = 7;
+            setIsCritical(false);
+
+            if (iblockstate.getMaterial() != Material.AIR)
+                inTile.onEntityCollidedWithBlock(world, blockpos, iblockstate, this);
+        }
+	}
 	
 	@Override
 	protected ItemStack getArrowStack()
