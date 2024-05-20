@@ -1,6 +1,7 @@
 package net.endermanofdoom.mac.util;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -13,6 +14,67 @@ public class StringUtil
 		for (int i = 0; i < amount; i++)
 			original = original.concat(input);
 		return original;
+	}
+	
+	public static String[] split(String original, String delimiter)
+	{
+		List<String> output = new LinkedList<String>();
+		int size = original.length();
+		int sizeDelimiter = delimiter.length();
+		
+		String input = "";
+		char character;
+		char characterDelimiter = delimiter.charAt(0);
+		for (int i = 0, ii = 0; i < size; i++)
+		{
+			character = original.charAt(i);
+			
+			if (character == characterDelimiter)
+			{
+				ii++;
+				if (ii < sizeDelimiter)
+				{
+					characterDelimiter = delimiter.charAt(ii);
+				}
+				else
+				{
+					ii = 0;
+					characterDelimiter = delimiter.charAt(ii);
+					if (!input.isEmpty())
+						output.add(input);
+					input = "";
+				}
+			}
+			else
+			{
+				if (ii > 0)
+				{
+					ii = 0;
+					characterDelimiter = delimiter.charAt(ii);
+				}
+
+				input += character;
+			}
+
+			if (i + 1 >= size && !input.isEmpty())
+				output.add(input);
+		}
+		
+		return output.toArray(new String[output.size()]);
+	}
+	
+	public static Character[] getUniqueCharacters(String original)
+	{
+		List<Character> characters = new LinkedList<Character>();
+		Character character;
+		for (int i = 0; i < original.length(); i++)
+		{
+			character = original.charAt(i);
+			if (!character.equals(' ') && !characters.contains(character))
+				characters.add(character);
+		}
+			
+		return characters.toArray(new Character[characters.size()]);
 	}
 	
 	public static String parseDouble(double value)

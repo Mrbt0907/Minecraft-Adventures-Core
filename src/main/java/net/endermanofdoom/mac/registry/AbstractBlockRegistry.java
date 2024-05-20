@@ -1,6 +1,6 @@
 package net.endermanofdoom.mac.registry;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import javax.annotation.Nonnull;
 
@@ -18,7 +18,7 @@ import net.minecraftforge.registries.IForgeRegistry;
 public abstract class AbstractBlockRegistry
 {
 	private IForgeRegistry<Block> registry;
-	private final List<Block> blocks = new ArrayList<Block>();
+	private final List<Block> blocks = new LinkedList<Block>();
 	private final String MODID;
 	private final AbstractItemRegistry ITEM_REGISTRY;
 	

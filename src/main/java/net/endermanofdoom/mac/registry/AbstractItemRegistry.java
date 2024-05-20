@@ -1,7 +1,7 @@
 package net.endermanofdoom.mac.registry;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -22,10 +22,10 @@ import net.minecraftforge.registries.IForgeRegistry;
 public abstract class AbstractItemRegistry
 {
 	private IForgeRegistry<Item> registry;
-	private final List<Block> blocks = new ArrayList<Block>();
-	private final Map<Item, Integer> items = new HashMap<Item, Integer>();
-	private final Map<Item, String> oreDicts = new HashMap<Item, String>();
-	private final Map<Block, String> oreDictBlocks = new HashMap<Block, String>();
+	private final List<Block> blocks = new LinkedList<Block>();
+	private final Map<Item, Integer> items = new LinkedHashMap<Item, Integer>();
+	private final Map<Item, String> oreDicts = new LinkedHashMap<Item, String>();
+	private final Map<Block, String> oreDictBlocks = new LinkedHashMap<Block, String>();
 	private final String MODID;
 	
 	protected AbstractItemRegistry(String modid)
