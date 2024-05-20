@@ -7,7 +7,6 @@ import net.endermanofdoom.mac.config.ConfigCore;
 import net.endermanofdoom.mac.internal.events.CommonEventHandler;
 import net.endermanofdoom.mac.network.NetworkHandler;
 import net.endermanofdoom.mac.network.NetworkReciever;
-import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;

@@ -1,11 +1,13 @@
 package net.endermanofdoom.mac.internal.events;
 
 import net.endermanofdoom.mac.events.WorldEvent;
+import net.endermanofdoom.mac.registry.MACAttributes;
 import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.endermanofdoom.mac.world.WorldDataManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -95,5 +97,7 @@ public class CommonEventHandler
 			item.setNoDespawn();
 			}
 		}
+		else if(entity instanceof EntityPlayer)
+			((EntityPlayer)entity).getAttributeMap().registerAttribute(MACAttributes.ATTACK_RANGE);
 	}
 }

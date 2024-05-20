@@ -3,10 +3,12 @@ package net.endermanofdoom.mac.command;
 import java.util.List;
 
 import net.endermanofdoom.mac.MACCore;
+import net.endermanofdoom.mac.registry.MACAttributes;
 import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
 
@@ -47,6 +49,16 @@ public class CommandMAC extends CommandBase
 					}
 					else
 						sender.sendMessage(new TextComponentString("/mac class <Class To Get>"));
+					break;
+				case "reach":
+					if (args.length > 1 && sender instanceof EntityPlayerMP)
+					{
+						double reach = Math.max(Double.parseDouble(args[1]), 0.0D);
+						((EntityPlayerMP)sender).getEntityAttribute(MACAttributes.ATTACK_RANGE).setBaseValue(reach);
+						sender.sendMessage(new TextComponentString("Set Extra Attack Reach to " + reach + " blocks"));
+					}
+					else
+						sender.sendMessage(new TextComponentString("/mac reach <Extra Attack Reach Distance>"));
 					break;
 				default:
 					sender.sendMessage(new TextComponentString("/mac <class>"));
