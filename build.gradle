@@ -12,7 +12,7 @@ project.mkdir "libs"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 
-version = '2.6'
+version = '2.7'
 group = 'net.endermanofdoom.mac'
 archivesBaseName = 'MAC_API'
 
