@@ -66,6 +66,8 @@ public class MACCore
 		debug("Overwriting fields...");
 		((RangedAttribute)SharedMonsterAttributes.MAX_HEALTH).maximumValue = Double.MAX_VALUE;
 		((RangedAttribute)SharedMonsterAttributes.ATTACK_DAMAGE).maximumValue = Double.MAX_VALUE;
+		((RangedAttribute)SharedMonsterAttributes.ARMOR).maximumValue = Double.MAX_VALUE;
+		((RangedAttribute)SharedMonsterAttributes.ARMOR_TOUGHNESS).maximumValue = Double.MAX_VALUE;
 		proxy.preInit(e);
 	}
 	

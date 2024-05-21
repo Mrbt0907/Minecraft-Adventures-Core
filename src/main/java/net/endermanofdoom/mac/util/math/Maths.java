@@ -280,4 +280,23 @@ public class Maths
 	{
 		return 1.5707964D - ASIN_TABLE[(int)((x + 1.0D) * 32767.5D) & 0xFFFF];
 	}
+	
+	public static Vec rotate(Vec origin, Vec offset, float radians)
+	{
+		double cos = fastCos(radians), sin = fastSin(-radians);
+		double x = origin.posX + offset.posX, z = origin.posZ + offset.posZ; 
+		origin.posX += (x - origin.posX) * cos - (z - origin.posZ) * sin;
+		origin.posZ += (x - origin.posX) * sin - (z - origin.posZ) * cos;
+		return origin;
+	}
+	
+	public static void updateRandom()
+	{
+		updateRandom(new Random());
+	}
+	
+	public static void updateRandom(Random rand)
+	{
+		random = rand;
+	}
 }

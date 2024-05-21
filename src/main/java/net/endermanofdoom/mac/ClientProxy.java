@@ -3,7 +3,10 @@ package net.endermanofdoom.mac;
 import net.endermanofdoom.mac.client.BossBarManager;
 import net.endermanofdoom.mac.client.gui.GuiBossBar;
 import net.endermanofdoom.mac.client.gui.GuiDialogue;
+import net.endermanofdoom.mac.internal.client.EntityRendererEX;
 import net.endermanofdoom.mac.internal.events.ClientEventHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -33,5 +36,8 @@ public class ClientProxy extends CommonProxy
 	public void postInit(FMLPostInitializationEvent e)
 	{
 		super.postInit(e);
+		Minecraft mc = Minecraft.getMinecraft();
+		if (mc.entityRenderer.getClass().equals(EntityRenderer.class))
+			mc.entityRenderer = new EntityRendererEX(mc, mc.getResourceManager());
 	}
 }

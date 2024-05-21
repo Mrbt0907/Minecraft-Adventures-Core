@@ -6,6 +6,7 @@ import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.endermanofdoom.mac.world.WorldDataManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -98,6 +99,10 @@ public class CommonEventHandler
 			}
 		}
 		else if(entity instanceof EntityPlayer)
-			((EntityPlayer)entity).getAttributeMap().registerAttribute(MACAttributes.ATTACK_RANGE);
+		{
+			AbstractAttributeMap attributes = ((EntityPlayer)entity).getAttributeMap();
+			if (attributes.getAttributeInstance(MACAttributes.ATTACK_RANGE) == null)
+				attributes.registerAttribute(MACAttributes.ATTACK_RANGE);
+		}
 	}
 }

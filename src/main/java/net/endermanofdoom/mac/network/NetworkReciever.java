@@ -49,7 +49,7 @@ public class NetworkReciever implements INetworkReciever
 			case 3:
 				break;
 			case 4:
-				ExtendedReachHandler.onAttack(player, nbt.getUniqueId("entityUUID"));
+				ExtendedReachHandler.onAttack(player, nbt.getUniqueId("entityUUID"), nbt.hasKey("partIndex") ? nbt.getInteger("partIndex") : -1);
 				break;
 			default:
 				MACCore.warn("NetworkManager has recieved an unknown network message from a client with id of " + commandID + ". Skipping...");
