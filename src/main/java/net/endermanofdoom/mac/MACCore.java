@@ -7,6 +7,7 @@ import net.endermanofdoom.mac.config.ConfigCore;
 import net.endermanofdoom.mac.internal.events.CommonEventHandler;
 import net.endermanofdoom.mac.network.NetworkHandler;
 import net.endermanofdoom.mac.network.NetworkReciever;
+import net.endermanofdoom.mac.util.chunk.ChunkLoadingUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -68,6 +69,7 @@ public class MACCore
 		((RangedAttribute)SharedMonsterAttributes.ATTACK_DAMAGE).maximumValue = Double.MAX_VALUE;
 		((RangedAttribute)SharedMonsterAttributes.ARMOR).maximumValue = Double.MAX_VALUE;
 		((RangedAttribute)SharedMonsterAttributes.ARMOR_TOUGHNESS).maximumValue = Double.MAX_VALUE;
+		ChunkLoadingUtil.preInit();
 		proxy.preInit(e);
 	}
 	
