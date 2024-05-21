@@ -119,7 +119,7 @@ public class ClientEventHandler
 			{
 				MC.pointedEntity = null;
 				IAttributeInstance attribute = MC.player.getAttributeMap().getAttributeInstance(MACAttributes.ATTACK_RANGE);
-				double reach = attribute == null ? 3.0D : attribute.getAttributeValue();
+				double reach = attribute == null ? 3.0D : attribute.getAttributeValue() + 3.0D;
 				Vec3d eyeVector = player.getPositionEyes(partialTicks);
 
 				if (MC.playerController.extendedReach())
