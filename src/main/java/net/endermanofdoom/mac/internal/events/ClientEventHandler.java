@@ -91,7 +91,6 @@ public class ClientEventHandler
 			nbt.setUniqueId("entityUUID", MC.objectMouseOver.entityHit.getUniqueID());
 			if (part > -1)
 				nbt.setInteger("partIndex", part);
-			MACCore.info("Hit");
 			MACCore.NETWORK.sendToServer(4, nbt);
 		}
 	}
