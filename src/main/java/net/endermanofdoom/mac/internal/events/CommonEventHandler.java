@@ -149,25 +149,83 @@ public class CommonEventHandler
 	@SubscribeEvent
 	public static void onEquipmentChange(LivingEquipmentChangeEvent event)
 	{
-		EntityLivingBase owner = event.getEntityLiving();
+		/*EntityLivingBase owner = event.getEntityLiving();
+		if (!(owner instanceof EntityPlayer)) return;
 		EntityEquipmentSlot[] slots = EntityEquipmentSlot.values();
 		EntityEquipmentSlot slotChanged = event.getSlot();
 		ItemStack[] equipment = getEquipment(owner);
+		equipment[getEquipmentIndex(slotChanged.getSlotIndex())] = event.getTo();
 		ItemStack stackOld = event.getFrom();
 		ItemStack stack;
 		ISetBonus item;
 		boolean isSetOld, isSetNow;
 		int i;
-		
 		for (EntityEquipmentSlot slot : slots)
 		{
-			i = slot.getIndex();
+			i = slot.getSlotIndex();
+			if (i > 5) continue;
+			stack = equipment[getEquipmentIndex(i)];
+			if (!(stack.getItem() instanceof ISetBonus)) continue;
+
+			item = (ISetBonus) stack.getItem();
+			
+			if (slotChanged.equals(slot) && stackOld.getItem() instanceof ISetBonus)
+			{
+				ISetBonus itemOld = (ISetBonus) stackOld.getItem();
+				switch(slotChanged)
+				{
+					case HEAD: isSetOld = itemOld.isFullSet(owner, slot, stackOld, equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]); break;
+					case CHEST: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], stackOld, equipment[2], equipment[3], equipment[4], equipment[5]); break;
+					case LEGS: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], equipment[1], stackOld, equipment[3], equipment[4], equipment[5]); break;
+					case FEET: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], stackOld, equipment[4], equipment[5]); break;
+					case MAINHAND: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], stackOld, equipment[5]); break;
+					case OFFHAND: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], stackOld); break;
+					default: isSetOld = false;
+				}
+					if (isSetOld)
+						itemOld.onSetUnequip(owner, stackOld, slot);
+					itemOld.onUnequip(owner, stackOld, slot);
+			}
+			switch(slotChanged)
+			{
+				case HEAD: isSetOld = item.isFullSet(owner, slot, stackOld, equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]); break;
+				case CHEST: isSetOld = item.isFullSet(owner, slot, equipment[0], stackOld, equipment[2], equipment[3], equipment[4], equipment[5]); break;
+				case LEGS: isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], stackOld, equipment[3], equipment[4], equipment[5]); break;
+				case FEET: isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], stackOld, equipment[4], equipment[5]); break;
+				case MAINHAND: isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], stackOld, equipment[5]); break;
+				case OFFHAND: isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], stackOld); break;
+				default: isSetOld = false;
+			}
+			if (isSetOld)
+				item.onSetUnequip(owner, stack, slot);
+			item.onUnequip(owner, stack, slot);
+			if (item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]))
+				item.onSetEquip(owner, stack, slot);
+			item.onEquip(owner, stack, slotChanged);
+		}*/
+/*
+		for (EntityEquipmentSlot slot : slots)
+		{
+			i = slot.getSlotIndex();
 			if (i > 5) continue;
 			stack = equipment[getEquipmentIndex(i)];
 			
 			if (slotChanged.equals(slot) && stackOld.getItem() instanceof ISetBonus)
 			{
 				ISetBonus itemOld = (ISetBonus) stackOld.getItem();
+				switch(slotChanged)
+				{
+					case HEAD: isSetOld = itemOld.isFullSet(owner, slot, stackOld, equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]); break;
+					case CHEST: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], stackOld, equipment[2], equipment[3], equipment[4], equipment[5]); break;
+					case LEGS: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], equipment[1], stackOld, equipment[3], equipment[4], equipment[5]); break;
+					case FEET: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], stackOld, equipment[4], equipment[5]); break;
+					case MAINHAND: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], stackOld, equipment[5]); break;
+					case OFFHAND: isSetOld = itemOld.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], stackOld); break;
+					default: isSetOld = false;
+				}
+					if (isSetOld)
+						itemOld.onSetUnequip(owner, stackOld, slot);
+					itemOld.onUnequip(owner, stackOld, slot);
 				
 			}
 			
@@ -176,66 +234,29 @@ public class CommonEventHandler
 				item = (ISetBonus) stack.getItem();
 				switch(slotChanged)
 				{
-					case HEAD:
-						isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]);
-						break;
-					case CHEST:
-						isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]);
-						break;
-					case LEGS:
-						isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]);
-						break;
-					case FEET:
-						isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]);
-						break;
-					case MAINHAND:
-						isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]);
-						break;
-					case OFFHAND:
-						isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]);
-						break;
+					case HEAD: isSetOld = item.isFullSet(owner, slot, stackOld, equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]); break;
+					case CHEST: isSetOld = item.isFullSet(owner, slot, equipment[0], stackOld, equipment[2], equipment[3], equipment[4], equipment[5]); break;
+					case LEGS: isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], stackOld, equipment[3], equipment[4], equipment[5]); break;
+					case FEET: isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], stackOld, equipment[4], equipment[5]); break;
+					case MAINHAND: isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], stackOld, equipment[5]); break;
+					case OFFHAND: isSetOld = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], stackOld); break;
+					default: isSetOld = false;
 				}
+				isSetNow = item.isFullSet(owner, slot, equipment[0], equipment[1], equipment[2], equipment[3], equipment[4], equipment[5]);
+				if (isSetOld)
+				{
+					if (!isSetNow)
+					{
+						item.onSetUnequip(owner, stack, slot);
+					}
+				}
+				else
+					if (isSetNow)
+						item.onSetEquip(owner, stack, slot);
+				
+				if (slotChanged.equals(slot))
+					item.onEquip(owner, stack, slot);
 			}
-		}
-		/*
-		//Parsing
-		if (oldStack.getItem() instanceof ISetBonus)
-		{
-			ItemStack[] stacksOld = new ItemStack[6];
-			ISetBonus stack = (ISetBonus) oldStack.getItem();
-			stacksOld[5] = slot.equals(EntityEquipmentSlot.HEAD) ? oldStack : owner.getItemStackFromSlot(EntityEquipmentSlot.HEAD);
-			stacksOld[4] = slot.equals(EntityEquipmentSlot.CHEST) ? oldStack : owner.getItemStackFromSlot(EntityEquipmentSlot.CHEST);
-			stacksOld[3] = slot.equals(EntityEquipmentSlot.LEGS) ? oldStack : owner.getItemStackFromSlot(EntityEquipmentSlot.LEGS);
-			stacksOld[2] = slot.equals(EntityEquipmentSlot.FEET) ? oldStack : owner.getItemStackFromSlot(EntityEquipmentSlot.FEET);
-			stacksOld[0] = slot.equals(EntityEquipmentSlot.MAINHAND) ? oldStack : owner.getItemStackFromSlot(EntityEquipmentSlot.MAINHAND);
-			stacksOld[1] = slot.equals(EntityEquipmentSlot.OFFHAND) ? oldStack : owner.getItemStackFromSlot(EntityEquipmentSlot.OFFHAND);
-			for (int i = 0; i < 6; i++)
-				if (stacksOld[i] == null)
-					stacksOld[i] = ItemStack.EMPTY;
-			if (isFullSet(owner, oldStack, stacksOld, slot))
-				stack.onUnequipFull(owner, oldStack, slot);
-			stack.onUnequip(owner, oldStack, slot);
-		}
-		EntityEquipmentSlot[] slots = EntityEquipmentSlot.values();
-		ItemStack stack;
-		ISetBonus item;
-		boolean isSet, isSetOld;
-		int index;
-		for (EntityEquipmentSlot slotB : slots)
-		{
-			index = slotB.ordinal();
-			if (index > 5) continue;
-			stack = stacks[index];
-			if (!(stack.getItem() instanceof ISetBonus)) continue;
-			item = (ISetBonus) stack.getItem();
-			isSetOld = isFullSet(owner, item, oldStack, stacks, slotB);
-			isSet = isFullSet(owner, item, newStack, stacks, slotB);
-			if (slot.equals(slotB))
-				item.onEquip(owner, stack, slotB);
-			if (isSetOld && !isSet)
-				item.onUnequipFull(owner, stack, slotB);
-			else if ((!isSetOld || slot.equals(slotB)) && isSet)
-				item.onEquipFull(owner, stack, slotB);
 		}*/
 	}
 }
