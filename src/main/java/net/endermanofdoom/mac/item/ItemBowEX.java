@@ -5,7 +5,6 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import net.endermanofdoom.mac.util.EnchantmentUtil;
-import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.endermanofdoom.mac.util.math.Vec;
 import net.endermanofdoom.mac.util.math.Vec3;
 import net.minecraft.entity.EntityLivingBase;
@@ -49,12 +48,12 @@ public abstract class ItemBowEX extends ItemBow
 		addPropertyOverride(new ResourceLocation("pull"), new IItemPropertyGetter()
 		{
 			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn)
+			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entity)
 			{
-				if (entityIn == null)
+				if (entity == null)
 					return 0.0F;
 				else
-					return !(entityIn.getActiveItemStack().getItem() instanceof ItemBowEX) ? 0.0F : (float)(stack.getMaxItemUseDuration() - entityIn.getItemInUseCount()) / getChargeTime(stack);
+					return !(entity.getActiveItemStack().getItem() instanceof ItemBowEX) ? 0.0F : ((ItemBowEX)entity.getActiveItemStack().getItem()).getPullPercent(entity, entity.getActiveItemStack());
 			}
 		});
 		addPropertyOverride(new ResourceLocation("pulling"), new IItemPropertyGetter()
@@ -62,7 +61,7 @@ public abstract class ItemBowEX extends ItemBow
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn)
 			{
-				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
+				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack && stack.getItem() instanceof ItemBowEX && ((ItemBowEX)stack.getItem()).isPulling(entityIn, stack) ? 1.0F : 0.0F;
 			}
 		});
 	}
@@ -192,7 +191,7 @@ public abstract class ItemBowEX extends ItemBow
 						{
 							shooter.inventory.deleteStack(itemstack);
 							itemstack = findAmmo(shooter);
-							
+							arrow = (ItemArrow)(itemstack.getItem() instanceof ItemArrow ? itemstack.getItem() : Items.ARROW);
 							if (itemstack.isEmpty())
 								break;
 						}
@@ -213,11 +212,9 @@ public abstract class ItemBowEX extends ItemBow
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase shooter, int timeLeft)
 	{
-		if (shooter instanceof EntityPlayer)
-		{
-			shoot(stack, world, (EntityPlayer) shooter, timeLeft);
-			onStopUse(stack, shooter.world, (EntityPlayer) shooter, timeLeft);
-		}
+		if (!(shooter instanceof EntityPlayer)) return;
+		shoot(stack, world, (EntityPlayer) shooter, timeLeft);
+		onStopUse(stack, shooter.world, (EntityPlayer) shooter, timeLeft);
 	}
 	
 	@Override
@@ -232,11 +229,11 @@ public abstract class ItemBowEX extends ItemBow
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase shooter, int timeLeft)
 	{
-		if (shooter instanceof EntityPlayer)
-			onTickUse(stack, shooter.world, (EntityPlayer) shooter, timeLeft);
+		if (!(shooter instanceof EntityPlayer)) return;
+		onTickUse(stack, shooter.world, (EntityPlayer) shooter, timeLeft);
 		if (!autoFire) return;
 		int maxUseTime = stack.getMaxItemUseDuration();
-		if (shooter instanceof EntityPlayer && maxUseTime - timeLeft > getChargeTime(stack))
+		if (maxUseTime - timeLeft > getChargeTime(stack))
 		{
 			shoot(stack, shooter.world, (EntityPlayer) shooter, 0);
 			shooter.activeItemStackUseCount = maxUseTime;
@@ -280,5 +277,15 @@ public abstract class ItemBowEX extends ItemBow
 	public int getItemEnchantability()
 	{
 		return enchantability;
+	}
+	
+	protected float getPullPercent(EntityLivingBase entity, ItemStack stack)
+	{
+		return (float)(stack.getMaxItemUseDuration() - entity.getItemInUseCount()) / getChargeTime(stack);
+	}
+	
+	protected boolean isPulling(EntityLivingBase entity, ItemStack stack)
+	{
+		return true;
 	}
 }
