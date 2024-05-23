@@ -3,7 +3,6 @@ package net.endermanofdoom.mac.capabilities;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.network.PacketMagazine;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
@@ -16,9 +15,9 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
-public class CapabilityCrossbow implements IMagazineCapability, ICapabilityProvider
+public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySerializable<NBTTagCompound>
 {
 	@CapabilityInject(CapabilityCrossbow.class)
 	public static final Capability<CapabilityCrossbow> INSTANCE = null;
@@ -128,13 +127,45 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilityProvi
 		@Override
 		public NBTBase writeNBT(Capability<CapabilityCrossbow> capability, CapabilityCrossbow instance, EnumFacing side)
 		{
-			return instance.serializeNBT();
+			List<ItemStack> stacks = instance.ammunition;
+			NBTTagCompound nbtMagazine = new NBTTagCompound();
+			NBTTagList magazine = new NBTTagList();
+			NBTTagCompound nbt; ItemArrow arrow;
+			
+			for(ItemStack stack : stacks)
+			{
+				if (!(stack.getItem() instanceof ItemArrow)) continue;
+				arrow = (ItemArrow) stack.getItem();
+				nbt = new NBTTagCompound();
+				nbt.setString("type", arrow.getRegistryName().toString());
+				nbt.setInteger("amount", stack.getCount());
+				nbt.setInteger("metadata", stack.getMetadata());
+				magazine.appendTag(nbt);
+			}
+			
+			nbtMagazine.setTag("magazine", magazine);
+			return nbtMagazine;
 		}
 
 		@Override
-		public void readNBT(Capability<CapabilityCrossbow> capability, CapabilityCrossbow instance, EnumFacing side, NBTBase nbtBase)
+		public void readNBT(Capability<CapabilityCrossbow> capability, CapabilityCrossbow instance, EnumFacing side, NBTBase nbtData)
 		{
-			instance.deserializeNBT((NBTTagCompound) nbtBase);
+			if (!(nbtData instanceof NBTTagCompound)) return;
+			NBTTagCompound nbtBase = (NBTTagCompound) nbtData;
+			if (!nbtBase.hasKey("magazine")) return;
+			List<ItemStack> ammo = new LinkedList<ItemStack>();
+			NBTTagList magazine = (NBTTagList) nbtBase.getTag("magazine");
+			NBTTagCompound nbt; Item item; int amount;
+			for (NBTBase entry : magazine)
+			{
+				nbt = (NBTTagCompound) entry;
+				item = Item.getByNameOrId(nbt.getString("type"));
+				amount = nbt.getInteger("amount");
+				if (!(item instanceof ItemArrow) || amount < 1) continue;
+				ammo.add(new ItemStack(item, amount, nbt.getInteger("metadata")));
+			}
+			instance.unloadMagazine();
+			instance.loadMagazine(ammo, false);
 		}
 	}
 	
@@ -152,41 +183,11 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilityProvi
 
 	public NBTTagCompound serializeNBT()
 	{
-		List<ItemStack> stacks = ammunition;
-		NBTTagCompound nbtMagazine = new NBTTagCompound();
-		NBTTagList magazine = new NBTTagList();
-		NBTTagCompound nbt; ItemArrow arrow;
-		
-		for(ItemStack stack : stacks)
-		{
-			if (!(stack.getItem() instanceof ItemArrow)) continue;
-			arrow = (ItemArrow) stack.getItem();
-			nbt = new NBTTagCompound();
-			nbt.setString("type", arrow.getRegistryName().toString());
-			nbt.setInteger("amount", stack.getCount());
-			nbt.setInteger("metadata", stack.getMetadata());
-			magazine.appendTag(nbt);
-		}
-		
-		nbtMagazine.setTag("magazine", magazine);
-		return nbtMagazine;
+		return (NBTTagCompound) INSTANCE.getStorage().writeNBT(INSTANCE, this, null);
 	}
 
 	public void deserializeNBT(NBTTagCompound nbtBase)
 	{
-		if (!nbtBase.hasKey("magazine")) return;
-		List<ItemStack> ammo = new LinkedList<ItemStack>();
-		NBTTagList magazine = (NBTTagList) nbtBase.getTag("magazine");
-		NBTTagCompound nbt; Item item; int amount;
-		for (NBTBase entry : magazine)
-		{
-			nbt = (NBTTagCompound) entry;
-			item = Item.getByNameOrId(nbt.getString("type"));
-			amount = nbt.getInteger("amount");
-			if (!(item instanceof ItemArrow) || amount < 1) continue;
-			ammo.add(new ItemStack(item, amount, nbt.getInteger("metadata")));
-		}
-		unloadMagazine();
-		loadMagazine(ammo, false);
+		INSTANCE.getStorage().readNBT(INSTANCE, this, null, nbtBase);
 	}
 }

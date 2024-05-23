@@ -75,7 +75,7 @@ public abstract class ItemCrossbow extends ItemBow
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn)
 			{
-				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : ItemUtils.loadNBT(stack).getBoolean("isLoaded") ? 1.0F : 0.0F;
+				return entityIn != null && (ItemUtils.loadNBT(stack).getBoolean("isLoaded") || entityIn.isHandActive()) ? 1.0F : 0.0F;
 			}
 		});
 	}
@@ -257,6 +257,8 @@ public abstract class ItemCrossbow extends ItemBow
 			else
 				capability.loadMagazine(((EntityPlayer)shooter).inventory, !((EntityPlayer)shooter).capabilities.isCreativeMode && EnchantmentUtil.getEnchantmentLevel(Enchantments.INFINITY, stack) < 1);
 			capability.markDirty((EntityPlayer) shooter, "inventory", "field_71071_by", ((EntityPlayer)shooter).inventory.getSlotFor(stack));
+			if (!world.isRemote)
+				nbt.setTag("magazine", capability.serializeNBT());
 			if (!capability.isMagazineEmpty())
 				world.playSound((EntityPlayer)null, shooter.posX, shooter.posY, shooter.posZ, soundLoaded, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + 0.5F);
 		}
@@ -297,14 +299,15 @@ public abstract class ItemCrossbow extends ItemBow
 						shooter.activeItemStackUseCount = maxUseTime - 1;
 						nbt.setInteger("ticksExisted", shooter.ticksExisted + getChargeTime(stack));
 						if (!autoFire)
-						{
 							nbt.setBoolean("fired", true);
-						}
+						if (!shooter.world.isRemote)
+							nbt.setTag("magazine", capability.serializeNBT());
 						ItemUtils.saveNBT(stack, nbt);
 					}
 					else
 					{
-						shooter.world.playSound((EntityPlayer)null, shooter.posX, shooter.posY, shooter.posZ, soundEmpty, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + 0.5F);
+						if (shooter.world.isRemote)
+							shooter.world.playSound((EntityPlayer)null, shooter.posX, shooter.posY, shooter.posZ, soundEmpty, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + 0.5F);
 						shooter.activeItemStackUseCount = maxUseTime - 1;
 					}
 				}
@@ -323,6 +326,8 @@ public abstract class ItemCrossbow extends ItemBow
 		ItemStack stack = result.getResult();
 		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.INSTANCE, null);
 		NBTTagCompound nbt = ItemUtils.loadNBT(stack);
+		if (nbt.hasKey("magazine"))
+			capability.deserializeNBT(nbt.getCompoundTag("magazine"));
 		int maxAmmo = this.maxAmmo + EnchantmentUtil.getEnchantmentLevel("multishot", stack, true);
 		if (capability.maxAmmo != maxAmmo)
 			capability.maxAmmo = maxAmmo;
