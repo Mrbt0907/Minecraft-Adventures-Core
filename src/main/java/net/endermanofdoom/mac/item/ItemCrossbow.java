@@ -160,7 +160,7 @@ public abstract class ItemCrossbow extends ItemBow
 	
 	protected void shoot(ItemStack stack, World world, EntityPlayer shooter, int timeLeft)
 	{
-		if (shooter.world.isRemote || !stack.hasCapability(CapabilityCrossbow.INSTANCE, null)) return;
+		if (!stack.hasCapability(CapabilityCrossbow.INSTANCE, null)) return;
 		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.INSTANCE, null);
 		onShootPre(stack, world, shooter, capability, timeLeft);
 		boolean hasInfinity = shooter.capabilities.isCreativeMode || EnchantmentUtil.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
@@ -232,7 +232,7 @@ public abstract class ItemCrossbow extends ItemBow
 	@Override
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase shooter, int timeLeft)
 	{
-		if (shooter.world.isRemote || !(shooter instanceof EntityPlayer) || !stack.hasCapability(CapabilityCrossbow.INSTANCE, null)) return;
+		if (!(shooter instanceof EntityPlayer) || !stack.hasCapability(CapabilityCrossbow.INSTANCE, null)) return;
 		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.INSTANCE, null);
 		NBTTagCompound nbt = ItemUtils.loadNBT(stack);
 		
@@ -258,7 +258,7 @@ public abstract class ItemCrossbow extends ItemBow
 	@Override
 	public void onUsingTick(ItemStack stack, EntityLivingBase shooter, int timeLeft)
 	{
-		if (shooter.world.isRemote || !(shooter instanceof EntityPlayer) || !stack.hasCapability(CapabilityCrossbow.INSTANCE, null)) return;
+		if (!(shooter instanceof EntityPlayer) || !stack.hasCapability(CapabilityCrossbow.INSTANCE, null)) return;
 		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.INSTANCE, null);
 		NBTTagCompound nbt = ItemUtils.loadNBT(stack);
 		onTickUse(stack, shooter.world, (EntityPlayer) shooter, capability, timeLeft);
@@ -307,7 +307,6 @@ public abstract class ItemCrossbow extends ItemBow
 			capability.maxAmmo = maxAmmo;
 		if (result.getType().equals(EnumActionResult.FAIL) && !capability.isMagazineEmpty())
 		{
-			MACCore.info(capability.getAmmoCount() > 0);
 			shooter.setActiveHand(hand);
 			result = new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
 		}

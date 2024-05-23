@@ -58,7 +58,6 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilityProvi
 	@Override
 	public void loadMagazine(IInventory inventory, boolean shouldShrink)
 	{
-		MACCore.info("Ran loadA");
 		if (inventory.isEmpty()) return;
 		int size = inventory.getSizeInventory();
 		for (int i = 0; i < size; i++)
@@ -68,7 +67,6 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilityProvi
 	@Override
 	public void loadMagazine(List<ItemStack> ammunition, boolean shouldShrink)
 	{
-		MACCore.info("Ran loadB");
 		if (ammunition.isEmpty()) return;
 		ammunition.forEach(stack -> toMagazine(stack, shouldShrink));
 	}
@@ -76,7 +74,6 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilityProvi
 	@Override
 	public void unloadMagazine()
 	{
-		MACCore.info("Ran unload");
 		ammunition.clear();
 		isLoaded = false;
 		changed = true;
@@ -85,7 +82,6 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilityProvi
 	@Override
 	public void toMagazine(ItemStack stack, boolean shouldShrink)
 	{
-		MACCore.info("Ran toMagazine");
 		if (!(stack.getItem() instanceof ItemArrow) || isMagazineFull()) return;
 		int count = Math.min(maxAmmo - ammunition.size(), stack.getCount());
 		ammunition.add(new ItemStack(stack.getItem(), count, stack.getMetadata()));
@@ -97,7 +93,6 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilityProvi
 	@Override
 	public ItemStack fromMagazine()
 	{
-		MACCore.info("Ran from");
 		Iterator<ItemStack> iterator = ammunition.iterator();
 		ItemStack ammo;
 		while (iterator.hasNext())
@@ -193,6 +188,5 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilityProvi
 		}
 		unloadMagazine();
 		loadMagazine(ammo, false);
-		
 	}
 }

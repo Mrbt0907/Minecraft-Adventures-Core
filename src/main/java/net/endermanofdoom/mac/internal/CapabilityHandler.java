@@ -10,11 +10,13 @@ import net.endermanofdoom.mac.capabilities.CapabilityCrossbow;
 import net.endermanofdoom.mac.item.ItemCrossbow;
 import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -32,6 +34,24 @@ public class CapabilityHandler
 		ItemStack stack = event.getObject();
 		if (stack.getItem() instanceof ItemCrossbow)
 			event.addCapability(new ResourceLocation(MACCore.MODID, "crossbow"), new CapabilityCrossbow());
+	}
+	
+	@SubscribeEvent
+	public static void onPlayerTracking(PlayerEvent.StartTracking event)
+	{
+		if (!(event.getTarget() instanceof EntityPlayer)) return;
+		EntityPlayer player = (EntityPlayer) event.getTarget();
+		if (player.world.isRemote) return;
+		
+		IInventory inventory = player.inventory;
+		int size = inventory.getSizeInventory();
+		ItemStack stack;
+		for(int i = 0; i < size; i++)
+		{
+			stack = inventory.getStackInSlot(i);
+			if (stack.hasCapability(CapabilityCrossbow.INSTANCE, null))
+				stack.getCapability(CapabilityCrossbow.INSTANCE, null).markDirty(player, "inventory", "field_71071_by", i);
+		}
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -74,7 +94,6 @@ public class CapabilityHandler
 							{
 								CapabilityCrossbow bow = stack.getCapability(CapabilityCrossbow.INSTANCE, null);
 								bow.deserializeNBT(nbtMagazine);
-								MACCore.info("Ammo:" + bow.serializeNBT());
 							}	
 							break;
 						default:

@@ -1,9 +1,6 @@
 package net.endermanofdoom.mac.internal.events;
 
-import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.events.WorldEvent;
-import net.endermanofdoom.mac.interfaces.ISetBonus;
-import net.endermanofdoom.mac.item.ItemUtils;
 import net.endermanofdoom.mac.registry.MACAttributes;
 import net.endermanofdoom.mac.world.WorldDataManager;
 import net.minecraft.entity.Entity;
