@@ -16,6 +16,7 @@ public interface IMagazineCapability
 	public void loadMagazine(List<ItemStack> ammunition, boolean shouldShrink);
 	public void unloadMagazine();
 	public void toMagazine(ItemStack stack, boolean shouldShrink);
+	public void toMagazine(int index, ItemStack stack, boolean shouldShrink);
 	public ItemStack fromMagazine();
 	public default void markDirty(Entity entity, String inventoryFieldName, int inventoryIndex) {markDirty(entity, inventoryFieldName, inventoryFieldName, inventoryIndex);}
 	public void markDirty(Entity entity, String inventoryFieldName, String inventoryObfName, int inventoryIndex);

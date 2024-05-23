@@ -81,14 +81,19 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySeria
 	@Override
 	public void toMagazine(ItemStack stack, boolean shouldShrink)
 	{
+		toMagazine(ammunition.size(), stack, shouldShrink);
+	}
+
+	@Override
+	public void toMagazine(int index, ItemStack stack, boolean shouldShrink) {
 		if (!(stack.getItem() instanceof ItemArrow) || isMagazineFull()) return;
-		int count = Math.min(maxAmmo - ammunition.size(), stack.getCount());
-		ammunition.add(new ItemStack(stack.getItem(), count, stack.getMetadata()));
+		int count = Math.min(maxAmmo - getAmmoCount(), stack.getCount());
+		ammunition.add(Math.min(index, ammunition.size()), new ItemStack(stack.getItem(), count, stack.getMetadata()));
 		if (shouldShrink)
 			stack.shrink(count);
 		changed = true;
 	}
-
+	
 	@Override
 	public ItemStack fromMagazine()
 	{
@@ -190,4 +195,6 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySeria
 	{
 		INSTANCE.getStorage().readNBT(INSTANCE, this, null, nbtBase);
 	}
+
+	
 }

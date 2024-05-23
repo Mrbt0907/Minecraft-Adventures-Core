@@ -61,12 +61,12 @@ public abstract class ItemCrossbow extends ItemBow
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entity)
 			{
 				
-				if (entity == null || !stack.hasCapability(CapabilityCrossbow.INSTANCE, null))
+				if (entity == null || !stack.equals(entity.getActiveItemStack()) || !stack.hasCapability(CapabilityCrossbow.INSTANCE, null))
 					return 0.0F;
 				else
 				{
 					CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.INSTANCE, null);
-					return ItemUtils.loadNBT(stack).getBoolean("isLoaded") ? 1.0F : (float)capability.reloadTime / reloadTime;
+					return ItemUtils.loadNBT(stack).getBoolean("isLoaded") ? 1.0F : ((float)capability.reloadTime) / reloadTime;
 				}
 			}
 		});
@@ -235,7 +235,7 @@ public abstract class ItemCrossbow extends ItemBow
 				shooter.addStat(StatList.getObjectUseStats(this));
 			}
 			if (!itemstack.isEmpty())
-				capability.toMagazine(itemstack, true);
+				capability.toMagazine(0, itemstack, true);
 			capability.markDirty((EntityPlayer) shooter, "inventory", "field_71071_by", ((EntityPlayer)shooter).inventory.getSlotFor(stack));
 			onShootPost(stack, world, shooter, capability, timeLeft);
 		}
@@ -250,17 +250,22 @@ public abstract class ItemCrossbow extends ItemBow
 		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.INSTANCE, null);
 		NBTTagCompound nbt = ItemUtils.loadNBT(stack);
 		
-		if (!nbt.getBoolean("isLoaded") && stack.getMaxItemUseDuration() - timeLeft > reloadTime)
+		if (!nbt.getBoolean("isLoaded"))
 		{
-			if (((EntityPlayer)shooter).capabilities.isCreativeMode && findAmmo((EntityPlayer) shooter).isEmpty())
-				capability.toMagazine(new ItemStack(Items.ARROW, 64), false);
+			if (stack.getMaxItemUseDuration() - timeLeft > reloadTime)
+			{
+				if (((EntityPlayer)shooter).capabilities.isCreativeMode && findAmmo((EntityPlayer) shooter).isEmpty())
+					capability.toMagazine(new ItemStack(Items.ARROW, 64), false);
+				else
+					capability.loadMagazine(((EntityPlayer)shooter).inventory, !((EntityPlayer)shooter).capabilities.isCreativeMode && EnchantmentUtil.getEnchantmentLevel(Enchantments.INFINITY, stack) < 1);
+				capability.markDirty((EntityPlayer) shooter, "inventory", "field_71071_by", ((EntityPlayer)shooter).inventory.getSlotFor(stack));
+				if (!world.isRemote)
+					nbt.setTag("magazine", capability.serializeNBT());
+				if (!capability.isMagazineEmpty())
+					world.playSound((EntityPlayer)null, shooter.posX, shooter.posY, shooter.posZ, soundLoaded, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + 0.5F);
+			}
 			else
-				capability.loadMagazine(((EntityPlayer)shooter).inventory, !((EntityPlayer)shooter).capabilities.isCreativeMode && EnchantmentUtil.getEnchantmentLevel(Enchantments.INFINITY, stack) < 1);
-			capability.markDirty((EntityPlayer) shooter, "inventory", "field_71071_by", ((EntityPlayer)shooter).inventory.getSlotFor(stack));
-			if (!world.isRemote)
-				nbt.setTag("magazine", capability.serializeNBT());
-			if (!capability.isMagazineEmpty())
-				world.playSound((EntityPlayer)null, shooter.posX, shooter.posY, shooter.posZ, soundLoaded, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + 0.5F);
+				capability.reloadTime = 0;
 		}
 		if (!autoFire)
 			nbt.setBoolean("fired", false);
@@ -275,6 +280,7 @@ public abstract class ItemCrossbow extends ItemBow
 	public void onUsingTick(ItemStack stack, EntityLivingBase shooter, int timeLeft)
 	{
 		if (!(shooter instanceof EntityPlayer) || !stack.hasCapability(CapabilityCrossbow.INSTANCE, null)) return;
+		
 		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.INSTANCE, null);
 		NBTTagCompound nbt = ItemUtils.loadNBT(stack);
 		onTickUse(stack, shooter.world, (EntityPlayer) shooter, capability, timeLeft);
@@ -293,27 +299,31 @@ public abstract class ItemCrossbow extends ItemBow
 			{
 				if (((maxUseTime == timeLeft || maxUseTime - timeLeft > getChargeTime(stack))) && nbt.getInteger("ticksExisted") < shooter.ticksExisted)
 				{
-					if (autoFire || !nbt.getBoolean("fired"))
+					if ((autoFire || !nbt.getBoolean("fired")) && !capability.isMagazineEmpty())
 					{
 						shoot(stack, shooter.world, (EntityPlayer) shooter, 0);
-						shooter.activeItemStackUseCount = maxUseTime - 1;
 						nbt.setInteger("ticksExisted", shooter.ticksExisted + getChargeTime(stack));
 						if (!autoFire)
 							nbt.setBoolean("fired", true);
 						if (!shooter.world.isRemote)
 							nbt.setTag("magazine", capability.serializeNBT());
 						ItemUtils.saveNBT(stack, nbt);
+						shooter.activeItemStackUseCount = maxUseTime - 1;
 					}
 					else
 					{
 						if (shooter.world.isRemote)
 							shooter.world.playSound((EntityPlayer)null, shooter.posX, shooter.posY, shooter.posZ, soundEmpty, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + 0.5F);
-						shooter.activeItemStackUseCount = maxUseTime - 1;
+						shooter.activeItemStackUseCount = 0;
+						onPlayerStoppedUsing(stack, shooter.world, shooter, timeLeft);
 					}
 				}
 			}
 			else
-				shooter.activeItemStackUseCount = maxUseTime - 1;
+			{
+				shooter.activeItemStackUseCount = 0;
+				onPlayerStoppedUsing(stack, shooter.world, shooter, timeLeft);
+			}
 		}
 		else if (capability.isMagazineEmpty())
 			capability.reloadTime++;
@@ -334,7 +344,7 @@ public abstract class ItemCrossbow extends ItemBow
 		if (result.getType().equals(EnumActionResult.FAIL) && !capability.isMagazineEmpty())
 		{
 			shooter.setActiveHand(hand);
-			result = new ActionResult<ItemStack>(EnumActionResult.PASS, stack);
+			result = new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 		}
 		
 		if (!result.getType().equals(EnumActionResult.FAIL))
