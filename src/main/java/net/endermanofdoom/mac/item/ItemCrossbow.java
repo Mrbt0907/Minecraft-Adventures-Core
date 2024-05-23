@@ -1,14 +1,17 @@
 package net.endermanofdoom.mac.item;
 
+import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.capabilities.CapabilityCrossbow;
 import net.endermanofdoom.mac.util.EnchantmentUtil;
+import net.endermanofdoom.mac.util.math.Maths;
 import net.endermanofdoom.mac.util.math.Vec;
 import net.endermanofdoom.mac.util.math.Vec3;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Enchantments;
@@ -175,7 +178,18 @@ public abstract class ItemCrossbow extends ItemBow
 			boolean l = EnchantmentUtil.getEnchantmentLevel(Enchantments.FLAME, stack) > 0;
 			if (arrowAmount > 0)
 			{
-				stack.damageItem(1, shooter);
+				if (!hasInfinity && !world.isRemote && stack.getItemDamage() + 1 > stack.getMaxDamage())
+				{
+					if (!itemstack.isEmpty())
+						capability.toMagazine(itemstack, !hasInfinity);
+					List<ItemStack> ammunition = capability.getAmmo();
+					ammunition.forEach(entry -> world.spawnEntity(new EntityItem(world, shooter.posX + Maths.random(-1.0D, 1.0D), shooter.posY + shooter.getEyeHeight() + Maths.random(-1.0D, 1.0D), shooter.posZ + Maths.random(-1.0D, 1.0D), entry)));
+					capability.unloadMagazine();
+					stack.damageItem(1, shooter);
+					return;
+				}
+				else
+					stack.damageItem(1, shooter);
 				for (int ii = 0; ii < arrows; ii++)
 				{
 					if (!world.isRemote)
@@ -263,23 +277,30 @@ public abstract class ItemCrossbow extends ItemBow
 		NBTTagCompound nbt = ItemUtils.loadNBT(stack);
 		onTickUse(stack, shooter.world, (EntityPlayer) shooter, capability, timeLeft);
 
+		if (shooter.ticksExisted < nbt.getInteger("ticksExisted") - getChargeTime(stack))
+		{
+			nbt.setInteger("ticksExisted", shooter.ticksExisted + getChargeTime(stack));
+			ItemUtils.saveNBT(stack, nbt);
+			nbt = ItemUtils.loadNBT(stack);
+		}
+		
 		if (nbt.getBoolean("isLoaded"))
 		{
 			int maxUseTime = stack.getMaxItemUseDuration();
-			if (autoFire || !capability.isMagazineEmpty() && !nbt.getBoolean("fired"))
+			if (autoFire || (!capability.isMagazineEmpty() && !nbt.getBoolean("fired")))
 			{
-				if ((maxUseTime == timeLeft || maxUseTime - timeLeft > getChargeTime(stack)))
+				if (((maxUseTime == timeLeft || maxUseTime - timeLeft > getChargeTime(stack))) && nbt.getInteger("ticksExisted") < shooter.ticksExisted)
 				{
 					if (autoFire || !nbt.getBoolean("fired"))
 					{
 						shoot(stack, shooter.world, (EntityPlayer) shooter, 0);
 						shooter.activeItemStackUseCount = maxUseTime - 1;
-						
+						nbt.setInteger("ticksExisted", shooter.ticksExisted + getChargeTime(stack));
 						if (!autoFire)
 						{
 							nbt.setBoolean("fired", true);
-							ItemUtils.saveNBT(stack, nbt);
 						}
+						ItemUtils.saveNBT(stack, nbt);
 					}
 					else
 					{
