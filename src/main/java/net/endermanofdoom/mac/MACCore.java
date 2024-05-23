@@ -4,6 +4,7 @@ import org.apache.logging.log4j.Logger;
 
 import net.endermanofdoom.mac.command.CommandMAC;
 import net.endermanofdoom.mac.config.ConfigCore;
+import net.endermanofdoom.mac.internal.CapabilityHandler;
 import net.endermanofdoom.mac.internal.events.CommonEventHandler;
 import net.endermanofdoom.mac.network.NetworkHandler;
 import net.endermanofdoom.mac.network.NetworkReciever;
@@ -58,12 +59,14 @@ public class MACCore
 		logger = e.getModLog();
 		ConfigManager.sync(MODID, Type.INSTANCE);
 		info(MODNAME +  " is coming alive!");
+		CapabilityHandler.preInit();
 		debug("Initializing network handler...");
 		NetworkHandler.preInit();
 		NetworkHandler.register(NETWORK);
 		debug("Registering events...");
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(CommonEventHandler.class);
+		MinecraftForge.EVENT_BUS.register(CapabilityHandler.class);
 		debug("Overwriting fields...");
 		((RangedAttribute)SharedMonsterAttributes.MAX_HEALTH).maximumValue = Double.MAX_VALUE;
 		((RangedAttribute)SharedMonsterAttributes.ATTACK_DAMAGE).maximumValue = Double.MAX_VALUE;

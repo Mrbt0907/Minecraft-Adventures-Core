@@ -3,6 +3,7 @@ package net.endermanofdoom.mac.network;
 import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.dialogue.SubDialogueMessage;
 import net.endermanofdoom.mac.interfaces.INetworkReciever;
+import net.endermanofdoom.mac.internal.CapabilityHandler;
 import net.endermanofdoom.mac.internal.ExtendedReachHandler;
 import net.endermanofdoom.mac.world.WorldDataManager;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -32,6 +33,9 @@ public class NetworkReciever implements INetworkReciever
 				break;
 			case 3:
 				WorldDataManager.onNetworkRecieved(nbt);
+				break;
+			case 5:
+				CapabilityHandler.onNetworkRecieve(nbt.getString("capability"), nbt.getString("entityClass"), nbt.getUniqueId("entityUUID"), nbt.getString("fieldName"), nbt.getString("obfName"), nbt.getInteger("inventoryIndex"), (NBTTagCompound) nbt.getTag("magazine"));
 				break;
 			default:
 				MACCore.warn("NetworkManager has recieved an unknown network message from the server with id of " + commandID + ". Skipping...");

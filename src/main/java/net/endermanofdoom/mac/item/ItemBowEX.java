@@ -53,7 +53,7 @@ public abstract class ItemBowEX extends ItemBow
 				if (entity == null)
 					return 0.0F;
 				else
-					return !(entity.getActiveItemStack().getItem() instanceof ItemBowEX) ? 0.0F : ((ItemBowEX)entity.getActiveItemStack().getItem()).getPullPercent(entity, entity.getActiveItemStack());
+					return !(entity.getActiveItemStack().getItem() instanceof ItemBowEX) ? 0.0F : (float)(stack.getMaxItemUseDuration() - entity.getItemInUseCount()) / getChargeTime(stack);
 			}
 		});
 		addPropertyOverride(new ResourceLocation("pulling"), new IItemPropertyGetter()
@@ -61,7 +61,7 @@ public abstract class ItemBowEX extends ItemBow
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn)
 			{
-				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack && stack.getItem() instanceof ItemBowEX && ((ItemBowEX)stack.getItem()).isPulling(entityIn, stack) ? 1.0F : 0.0F;
+				return entityIn != null && entityIn.isHandActive() && entityIn.getActiveItemStack() == stack ? 1.0F : 0.0F;
 			}
 		});
 	}
@@ -191,9 +191,9 @@ public abstract class ItemBowEX extends ItemBow
 						{
 							shooter.inventory.deleteStack(itemstack);
 							itemstack = findAmmo(shooter);
-							arrow = (ItemArrow)(itemstack.getItem() instanceof ItemArrow ? itemstack.getItem() : Items.ARROW);
 							if (itemstack.isEmpty())
 								break;
+							arrow = (ItemArrow)(itemstack.getItem() instanceof ItemArrow ? itemstack.getItem() : Items.ARROW);
 						}
 					}
 
@@ -256,11 +256,6 @@ public abstract class ItemBowEX extends ItemBow
 		return chargeTime;
 	}
 	
-	public int getChargeLeft(ItemStack stack, EntityLivingBase shooter)
-	{
-		return Math.max(0, getChargeTime(stack) - (stack.getMaxItemUseDuration() - shooter.getItemInUseCount()));
-	}
-	
 	@Override
 	public int getMaxItemUseDuration(ItemStack stack)
 	{
@@ -277,15 +272,5 @@ public abstract class ItemBowEX extends ItemBow
 	public int getItemEnchantability()
 	{
 		return enchantability;
-	}
-	
-	protected float getPullPercent(EntityLivingBase entity, ItemStack stack)
-	{
-		return (float)(stack.getMaxItemUseDuration() - entity.getItemInUseCount()) / getChargeTime(stack);
-	}
-	
-	protected boolean isPulling(EntityLivingBase entity, ItemStack stack)
-	{
-		return true;
 	}
 }

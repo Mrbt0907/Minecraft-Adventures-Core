@@ -8,7 +8,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.google.common.base.MoreObjects;
+
 import net.endermanofdoom.mac.MACCore;
+import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 
 public class ReflectionUtil
 {
@@ -20,11 +23,31 @@ public class ReflectionUtil
 	private static Field getField(Class <?> clazz, String fieldName, String fieldObfName)
 	{
 		Field field = FIELDS.get(fieldObfName);
-		
 		if (field == null)
 		{
-			field = net.minecraftforge.fml.relauncher.ReflectionHelper.findField(clazz, fieldName, fieldObfName);
+			String name = FMLLaunchHandler.isDeobfuscatedEnvironment() ? fieldName : MoreObjects.firstNonNull(fieldObfName, fieldName);
+			try
+			{
+				field = clazz.getDeclaredField(name);
+				field.setAccessible(true);
+			}
+			catch (Exception e) {};
 			
+			if (field == null)
+			{
+				Class <?> superClass = clazz.getSuperclass();
+				while (superClass != null)
+				{
+					try
+					{
+						field = superClass.getDeclaredField(name);
+						field.setAccessible(true);
+						break;
+					}
+					catch (Exception e) {};
+					superClass = superClass.getSuperclass();
+				}
+			}
 			if (field != null)
 				FIELDS.put(fieldObfName, field);
 		}
@@ -78,6 +101,17 @@ public class ReflectionUtil
 		return null;
 	}
 
+	public static Class<?> getClass(String clazzName)
+	{
+		Class<?> clazz = null;
+		try
+		{
+			clazz = Class.forName(clazzName);
+		}
+		catch (Exception e) {}
+		return clazz;
+	}
+	
 	public static List<String> viewFields(String... classes)
 	{
 		List<String> found = new ArrayList<String>();
