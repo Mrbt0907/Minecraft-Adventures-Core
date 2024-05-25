@@ -44,7 +44,7 @@ public abstract class ItemCrossbow extends ItemBow
 	protected int maxAmmo = 1;
 	protected int reloadTime = 20;
 	protected SoundEvent sound = SoundEvents.ENTITY_ARROW_SHOOT;
-	protected SoundEvent soundEmpty = SoundEvents.BLOCK_DISPENSER_FAIL;
+	protected SoundEvent soundEmpty = SoundEvents.BLOCK_TRIPWIRE_CLICK_OFF;
 	protected SoundEvent soundReload = SoundEvents.BLOCK_TRIPWIRE_ATTACH;
 	protected SoundEvent soundLoaded = SoundEvents.BLOCK_TRIPWIRE_CLICK_ON;
 	
@@ -234,7 +234,6 @@ public abstract class ItemCrossbow extends ItemBow
 			}
 			if (!itemstack.isEmpty())
 				capability.toMagazine(0, itemstack, true);
-			capability.markDirty((EntityPlayer) shooter, "inventory", "field_71071_by", ((EntityPlayer)shooter).inventory.getSlotFor(stack));
 			onShootPost(stack, world, shooter, capability, timeLeft);
 		}
 		else
@@ -255,13 +254,13 @@ public abstract class ItemCrossbow extends ItemBow
 					capability.toMagazine(new ItemStack(Items.ARROW, 64), false);
 				else
 					capability.loadMagazine(((EntityPlayer)shooter).inventory, !((EntityPlayer)shooter).capabilities.isCreativeMode && EnchantmentUtil.getEnchantmentLevel(Enchantments.INFINITY, stack) < 1);
-				capability.markDirty((EntityPlayer) shooter, "inventory", "field_71071_by", ((EntityPlayer)shooter).inventory.getSlotFor(stack));
+				if (!world.isRemote)
+					capability.markDirty((EntityPlayer) shooter, "inventory", "field_71071_by", ((EntityPlayer)shooter).inventory.getSlotFor(stack));
 				if (!capability.isMagazineEmpty())
 					world.playSound((EntityPlayer)null, shooter.posX, shooter.posY, shooter.posZ, soundLoaded, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + 0.5F);
 			}
 		}
-		if (!autoFire)
-			capability.hasFired = false;
+		capability.hasFired = false;
 		capability.isLoaded = !capability.isMagazineEmpty();
 		capability.reloadTime = 0;
 		onStopUse(stack, shooter.world, (EntityPlayer) shooter, capability, timeLeft);
@@ -289,20 +288,25 @@ public abstract class ItemCrossbow extends ItemBow
 					{
 						shoot(stack, shooter.world, (EntityPlayer) shooter, 0);
 						capability.nextShot = shooter.ticksExisted + getChargeTime(stack);
-						if (!autoFire)
-							capability.hasFired = true;
+						capability.hasFired = true;
 						shooter.activeItemStackUseCount = maxUseTime - 1;
 					}
 					else
 					{
-						if (shooter.world.isRemote)
-							shooter.world.playSound((EntityPlayer)null, shooter.posX, shooter.posY, shooter.posZ, soundEmpty, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + 0.5F);
+						shooter.world.playSound((EntityPlayer)null, shooter.posX, shooter.posY, shooter.posZ, soundEmpty, SoundCategory.PLAYERS, 1.0F, 1.0F / (itemRand.nextFloat() * 0.4F + 1.2F) + 0.5F);
+						if (!shooter.world.isRemote)
+							capability.markDirty((EntityPlayer) shooter, "inventory", "field_71071_by", ((EntityPlayer)shooter).inventory.getSlotFor(stack));
 						shooter.activeItemStackUseCount = maxUseTime - 1;
+						
 					}
 				}
 			}
 			else
+			{
+				if (!shooter.world.isRemote)
+					capability.markDirty((EntityPlayer) shooter, "inventory", "field_71071_by", ((EntityPlayer)shooter).inventory.getSlotFor(stack));
 				shooter.activeItemStackUseCount = maxUseTime - 1;
+			}
 		}
 		else
 			capability.reloadTime++;
