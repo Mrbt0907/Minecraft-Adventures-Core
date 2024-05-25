@@ -61,6 +61,25 @@ public abstract class ItemSwordEX extends ItemSword
 	public boolean onLeftClickEntity(ItemStack stack, EntityPlayer player, Entity victim)
     {
 		boolean shouldStopAttack = super.onLeftClickEntity(stack, player, victim);
+		if (targetIndex < 0)
+		{
+			onSwing(stack, player.world, player);
+			List<Entity> targets = getTargets(stack, player.world, player);
+			if (targets != null)
+			{
+				Entity target;
+				int size = targets.size();
+				if (targets != null)
+					for (int i = 0; i < size; i++)
+					{
+						target = targets.get(i);
+						targetIndex = i + 1;
+						player.attackTargetEntityWithCurrentItem(target);
+					}
+			}
+			targetIndex = -1;
+			return onAttackPre(stack, player.world, player, victim, targetIndex + 1, shouldStopAttack) ? true : shouldStopAttack;
+		}
 		return onAttackPre(stack, player.world, player, victim, targetIndex, shouldStopAttack) ? true : shouldStopAttack;
     }
 	
@@ -84,7 +103,7 @@ public abstract class ItemSwordEX extends ItemSword
 						player.attackTargetEntityWithCurrentItem(target);
 					}
 			}
-			targetIndex = 0;
+			targetIndex = -1;
 		}
 		return super.onEntitySwing(attacker, stack);
     }
