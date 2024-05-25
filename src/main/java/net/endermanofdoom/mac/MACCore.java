@@ -59,7 +59,6 @@ public class MACCore
 		logger = e.getModLog();
 		ConfigManager.sync(MODID, Type.INSTANCE);
 		info(MODNAME +  " is coming alive!");
-		CapabilityHandler.preInit();
 		debug("Initializing network handler...");
 		NetworkHandler.preInit();
 		NetworkHandler.register(NETWORK);
@@ -73,6 +72,7 @@ public class MACCore
 		((RangedAttribute)SharedMonsterAttributes.ARMOR).maximumValue = Double.MAX_VALUE;
 		((RangedAttribute)SharedMonsterAttributes.ARMOR_TOUGHNESS).maximumValue = Double.MAX_VALUE;
 		ChunkLoadingUtil.preInit();
+		CapabilityHandler.preInit();
 		proxy.preInit(e);
 	}
 	

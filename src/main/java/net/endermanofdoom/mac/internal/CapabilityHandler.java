@@ -7,6 +7,7 @@ import java.util.UUID;
 import net.minecraft.inventory.IInventory;
 import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.capabilities.CapabilityCrossbow;
+import net.endermanofdoom.mac.capabilities.CapabilityCrossbow.Provider;
 import net.endermanofdoom.mac.item.ItemCrossbow;
 import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.minecraft.entity.Entity;
@@ -33,7 +34,7 @@ public class CapabilityHandler
 	{
 		ItemStack stack = event.getObject();
 		if (stack.getItem() instanceof ItemCrossbow)
-			event.addCapability(new ResourceLocation(MACCore.MODID, "crossbow"), new CapabilityCrossbow());
+			event.addCapability(new ResourceLocation(MACCore.MODID, "crossbow"), new CapabilityCrossbow.Provider());
 	}
 	
 	@SubscribeEvent
@@ -49,8 +50,8 @@ public class CapabilityHandler
 		for(int i = 0; i < size; i++)
 		{
 			stack = inventory.getStackInSlot(i);
-			if (stack.hasCapability(CapabilityCrossbow.INSTANCE, null))
-				stack.getCapability(CapabilityCrossbow.INSTANCE, null).markDirty(player, "inventory", "field_71071_by", i);
+			if (stack.hasCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.SIDE))
+				stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.SIDE).markDirty(player, "inventory", "field_71071_by", i);
 		}
 	}
 	
@@ -90,10 +91,9 @@ public class CapabilityHandler
 					switch (capability)
 					{
 						case "crossbow":
-							if (stack.getItem() instanceof ItemCrossbow && stack.hasCapability(CapabilityCrossbow.INSTANCE, null))
+							if (stack.getItem() instanceof ItemCrossbow && stack.hasCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.SIDE))
 							{
-								CapabilityCrossbow bow = stack.getCapability(CapabilityCrossbow.INSTANCE, null);
-								bow.deserializeNBT(nbtMagazine);
+								CapabilityCrossbow.Provider.INSTANCE.readNBT(stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.SIDE), Provider.SIDE, nbtMagazine);
 							}	
 							break;
 						default:

@@ -3,6 +3,7 @@ package net.endermanofdoom.mac.capabilities;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import net.endermanofdoom.mac.network.PacketMagazine;
 import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
@@ -17,14 +18,14 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityInject;
 import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 
-public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySerializable<NBTTagCompound>
+public class CapabilityCrossbow implements IMagazineCapability
 {
-	@CapabilityInject(CapabilityCrossbow.class)
-	public static final Capability<CapabilityCrossbow> INSTANCE = null;
 	protected List<ItemStack> ammunition = new LinkedList<ItemStack>();
-	protected boolean isLoaded;
 	public int maxAmmo;
 	public int reloadTime;
+	public int nextShot;
+	public boolean isLoaded;
+	public boolean hasFired;
 	protected boolean changed;
 	
 	@Override
@@ -36,13 +37,19 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySeria
 	@Override
 	public boolean isMagazineEmpty()
 	{
-		return ammunition.isEmpty();
+		int count = 0;
+		for (ItemStack ammo : ammunition)
+			count += ammo.getCount();
+		return count < 1;
 	}
 	
 	@Override
 	public boolean isMagazineFull()
 	{
-		return ammunition.size() >= maxAmmo;
+		int count = 0;
+		for (ItemStack ammo : ammunition)
+			count += ammo.getCount();
+		return count >= maxAmmo;
 	}
 	
 	@Override
@@ -74,7 +81,6 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySeria
 	public void unloadMagazine()
 	{
 		ammunition.clear();
-		isLoaded = false;
 		changed = true;
 	}
 
@@ -91,6 +97,7 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySeria
 		ammunition.add(Math.min(index, ammunition.size()), new ItemStack(stack.getItem(), count, stack.getMetadata()));
 		if (shouldShrink)
 			stack.shrink(count);
+		isLoaded = true;
 		changed = true;
 	}
 	
@@ -106,6 +113,7 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySeria
 			{
 				changed = true;
 				iterator.remove();
+				isLoaded = true;
 				return ammo;
 			}
 			else
@@ -123,7 +131,7 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySeria
 		if (changed)
 		{
 			changed = false;
-			PacketMagazine.sendMagazineInfo("crossbow", entity.getClass().getCanonicalName(), entity.getUniqueID(), inventoryFieldName, inventoryObfName, inventoryIndex, serializeNBT());
+			PacketMagazine.sendMagazineInfo("crossbow", entity.getClass().getCanonicalName(), entity.getUniqueID(), inventoryFieldName, inventoryObfName, inventoryIndex, (NBTTagCompound) Provider.INSTANCE.writeNBT(this, Provider.SIDE));
 		}
 	}
 	
@@ -174,27 +182,35 @@ public class CapabilityCrossbow implements IMagazineCapability, ICapabilitySeria
 		}
 	}
 	
-	@Override
-	public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+	public static class Provider implements ICapabilitySerializable<NBTTagCompound>
 	{
-		return capability == INSTANCE;
-	}
+		@CapabilityInject(CapabilityCrossbow.class)
+		public static final Capability<CapabilityCrossbow> INSTANCE = null;
+		public static final EnumFacing SIDE = EnumFacing.DOWN;
+		private CapabilityCrossbow defaultInstance = INSTANCE.getDefaultInstance();
+		
+		@Override
+		public boolean hasCapability(Capability<?> capability, EnumFacing facing)
+		{
+			return capability == INSTANCE && facing == SIDE;
+		}
 
-	@Override
-	public <T> T getCapability(Capability<T> capability, EnumFacing facing)
-	{
-		return capability == INSTANCE ? INSTANCE.cast(this) : null;
-	}
+		@Override
+		public <T> T getCapability(Capability<T> capability, EnumFacing facing)
+		{
+			return capability == INSTANCE && facing == SIDE ? INSTANCE.cast(defaultInstance) : null;
+		}
 
-	public NBTTagCompound serializeNBT()
-	{
-		return (NBTTagCompound) INSTANCE.getStorage().writeNBT(INSTANCE, this, null);
-	}
+		@Override
+		public NBTTagCompound serializeNBT()
+		{
+			return (NBTTagCompound) INSTANCE.writeNBT(defaultInstance, SIDE);
+		}
 
-	public void deserializeNBT(NBTTagCompound nbtBase)
-	{
-		INSTANCE.getStorage().readNBT(INSTANCE, this, null, nbtBase);
+		@Override
+		public void deserializeNBT(NBTTagCompound nbt)
+		{
+			INSTANCE.readNBT(defaultInstance, SIDE, nbt);
+		}
 	}
-
-	
 }

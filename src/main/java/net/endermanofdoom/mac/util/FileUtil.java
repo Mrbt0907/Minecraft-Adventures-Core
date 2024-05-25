@@ -21,10 +21,18 @@ public class FileUtil
 {
 	private static String lastWorldSave;
 	
+	public static String getWorkingDirectory()
+	{
+		if (FMLCommonHandler.instance().getMinecraftServerInstance() == null || FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer())
+    		return FMLClientHandler.instance().getClient().mcDataDir.getPath() + File.separator;
+    	else
+    		return FMLCommonHandler.instance().getMinecraftServerInstance().getDataDirectory().getPath() + File.separator;
+	}
+	
 	public static String getWorldFolderPath()
 	{
     	if (FMLCommonHandler.instance().getMinecraftServerInstance() == null || FMLCommonHandler.instance().getMinecraftServerInstance().isSinglePlayer())
-    		return FMLClientHandler.instance().getClient().mcDataDir.getPath() + File.separator + "saves" + File.separator;
+    		return getWorkingDirectory() + "saves" + File.separator;
     	else
     		return new File(".").getAbsolutePath() + File.separator;
     }
