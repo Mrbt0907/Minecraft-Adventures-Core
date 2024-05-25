@@ -10,7 +10,6 @@ import java.util.Map;
 
 import com.google.common.base.MoreObjects;
 
-import net.endermanofdoom.mac.MACCore;
 import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
 
 public class ReflectionUtil

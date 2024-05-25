@@ -2,7 +2,6 @@ package net.endermanofdoom.mac.internal;
 
 import java.util.UUID;
 
-import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.registry.MACAttributes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.IAttributeInstance;

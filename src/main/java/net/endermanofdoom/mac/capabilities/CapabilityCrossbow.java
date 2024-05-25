@@ -27,6 +27,7 @@ public class CapabilityCrossbow implements IMagazineCapability
 	public boolean isLoaded;
 	public boolean hasFired;
 	protected boolean changed;
+	public boolean started;
 	
 	@Override
 	public List<ItemStack> getAmmo()
@@ -131,7 +132,7 @@ public class CapabilityCrossbow implements IMagazineCapability
 		if (changed)
 		{
 			changed = false;
-			PacketMagazine.sendMagazineInfo("crossbow", entity.getClass().getCanonicalName(), entity.getUniqueID(), inventoryFieldName, inventoryObfName, inventoryIndex, (NBTTagCompound) Provider.INSTANCE.writeNBT(this, Provider.SIDE));
+			PacketMagazine.sendMagazineInfo("crossbow", entity.getClass().getCanonicalName(), entity.getUniqueID(), inventoryFieldName, inventoryObfName, inventoryIndex, (NBTTagCompound) Provider.INSTANCE.writeNBT(this, Provider.FACE));
 		}
 	}
 	
@@ -140,6 +141,7 @@ public class CapabilityCrossbow implements IMagazineCapability
 		@Override
 		public NBTBase writeNBT(Capability<CapabilityCrossbow> capability, CapabilityCrossbow instance, EnumFacing side)
 		{
+			if (side != Provider.FACE) return new NBTTagCompound();
 			List<ItemStack> stacks = instance.ammunition;
 			NBTTagCompound nbtMagazine = new NBTTagCompound();
 			NBTTagList magazine = new NBTTagList();
@@ -163,12 +165,13 @@ public class CapabilityCrossbow implements IMagazineCapability
 		@Override
 		public void readNBT(Capability<CapabilityCrossbow> capability, CapabilityCrossbow instance, EnumFacing side, NBTBase nbtData)
 		{
-			if (!(nbtData instanceof NBTTagCompound)) return;
+			if (!(nbtData instanceof NBTTagCompound) || side != Provider.FACE) return;
 			NBTTagCompound nbtBase = (NBTTagCompound) nbtData;
 			if (!nbtBase.hasKey("magazine")) return;
 			List<ItemStack> ammo = new LinkedList<ItemStack>();
 			NBTTagList magazine = (NBTTagList) nbtBase.getTag("magazine");
 			NBTTagCompound nbt; Item item; int amount;
+			
 			for (NBTBase entry : magazine)
 			{
 				nbt = (NBTTagCompound) entry;
@@ -179,6 +182,8 @@ public class CapabilityCrossbow implements IMagazineCapability
 			}
 			instance.unloadMagazine();
 			instance.loadMagazine(ammo, false);
+			
+			
 		}
 	}
 	
@@ -186,31 +191,31 @@ public class CapabilityCrossbow implements IMagazineCapability
 	{
 		@CapabilityInject(CapabilityCrossbow.class)
 		public static final Capability<CapabilityCrossbow> INSTANCE = null;
-		public static final EnumFacing SIDE = EnumFacing.DOWN;
+		public static final EnumFacing FACE = EnumFacing.DOWN;
 		private CapabilityCrossbow defaultInstance = INSTANCE.getDefaultInstance();
 		
 		@Override
 		public boolean hasCapability(Capability<?> capability, EnumFacing facing)
 		{
-			return capability == INSTANCE && facing == SIDE;
+			return capability == INSTANCE && facing == FACE;
 		}
 
 		@Override
 		public <T> T getCapability(Capability<T> capability, EnumFacing facing)
 		{
-			return capability == INSTANCE && facing == SIDE ? INSTANCE.cast(defaultInstance) : null;
+			return capability == INSTANCE && facing == FACE? INSTANCE.cast(defaultInstance) : null;
 		}
 
 		@Override
 		public NBTTagCompound serializeNBT()
 		{
-			return (NBTTagCompound) INSTANCE.writeNBT(defaultInstance, SIDE);
+			return (NBTTagCompound) INSTANCE.writeNBT(defaultInstance, FACE);
 		}
 
 		@Override
 		public void deserializeNBT(NBTTagCompound nbt)
 		{
-			INSTANCE.readNBT(defaultInstance, SIDE, nbt);
+			INSTANCE.readNBT(defaultInstance, FACE, nbt);
 		}
 	}
 }

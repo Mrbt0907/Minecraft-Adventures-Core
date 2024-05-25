@@ -5,6 +5,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import net.endermanofdoom.mac.capabilities.CapabilityCrossbow;
+import net.endermanofdoom.mac.capabilities.CapabilityCrossbow.Provider;
 import net.endermanofdoom.mac.util.EnchantmentUtil;
 import net.endermanofdoom.mac.util.math.Maths;
 import net.endermanofdoom.mac.util.math.Vec;
@@ -63,7 +64,7 @@ public abstract class ItemCrossbow extends ItemBow
 					return 0.0F;
 				else
 				{
-					CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, CapabilityCrossbow.Provider.SIDE);
+					CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE);
 					return capability.isLoaded ? 1F : ((float)capability.reloadTime) / reloadTime;
 				}
 			}
@@ -73,7 +74,7 @@ public abstract class ItemCrossbow extends ItemBow
 			@SideOnly(Side.CLIENT)
 			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn)
 			{
-				CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, CapabilityCrossbow.Provider.SIDE);
+				CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE);
 				return entityIn != null && (capability.isLoaded && !capability.isMagazineEmpty() || entityIn.isHandActive() && !capability.isLoaded) ? 1.0F : 0.0F;
 			}
 		});
@@ -162,7 +163,7 @@ public abstract class ItemCrossbow extends ItemBow
 	
 	protected void shoot(ItemStack stack, World world, EntityPlayer shooter, int timeLeft)
 	{
-		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, CapabilityCrossbow.Provider.SIDE);
+		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE);
 		onShootPre(stack, world, shooter, capability, timeLeft);
 		boolean hasInfinity = shooter.capabilities.isCreativeMode || EnchantmentUtil.getEnchantmentLevel(Enchantments.INFINITY, stack) > 0;
 		
@@ -244,7 +245,7 @@ public abstract class ItemCrossbow extends ItemBow
 	public void onPlayerStoppedUsing(ItemStack stack, World world, EntityLivingBase shooter, int timeLeft)
 	{
 		if (!(shooter instanceof EntityPlayer)) return;
-		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, CapabilityCrossbow.Provider.SIDE);
+		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE);
 		
 		if (!capability.isLoaded)
 		{
@@ -271,7 +272,7 @@ public abstract class ItemCrossbow extends ItemBow
 	{
 		if (!(shooter instanceof EntityPlayer)) return;
 		
-		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, CapabilityCrossbow.Provider.SIDE);
+		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE);
 		onTickUse(stack, shooter.world, (EntityPlayer) shooter, capability, timeLeft);
 
 		if (shooter.ticksExisted < capability.nextShot - getChargeTime(stack))
@@ -317,7 +318,7 @@ public abstract class ItemCrossbow extends ItemBow
     {
 		ActionResult<ItemStack> result = super.onItemRightClick(world, shooter, hand);
 		ItemStack stack = result.getResult();
-		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, CapabilityCrossbow.Provider.SIDE);
+		CapabilityCrossbow capability = stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE);
 		int maxAmmo = this.maxAmmo + EnchantmentUtil.getEnchantmentLevel("multishot", stack, true);
 		if (capability.maxAmmo != maxAmmo)
 			capability.maxAmmo = maxAmmo;

@@ -24,6 +24,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CapabilityHandler
 {
+	public static final ResourceLocation CROSSBOW = new ResourceLocation(MACCore.MODID, "crossbow");
 	public static void preInit()
 	{
 		CapabilityManager.INSTANCE.register(CapabilityCrossbow.class, new CapabilityCrossbow.Storage(), CapabilityCrossbow::new);
@@ -33,8 +34,9 @@ public class CapabilityHandler
 	public static void attach(AttachCapabilitiesEvent<ItemStack> event)
 	{
 		ItemStack stack = event.getObject();
+		
 		if (stack.getItem() instanceof ItemCrossbow)
-			event.addCapability(new ResourceLocation(MACCore.MODID, "crossbow"), new CapabilityCrossbow.Provider());
+			event.addCapability(CROSSBOW, new CapabilityCrossbow.Provider());
 	}
 	
 	@SubscribeEvent
@@ -50,8 +52,8 @@ public class CapabilityHandler
 		for(int i = 0; i < size; i++)
 		{
 			stack = inventory.getStackInSlot(i);
-			if (stack.hasCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.SIDE))
-				stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.SIDE).markDirty(player, "inventory", "field_71071_by", i);
+			if (stack.hasCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE))
+				stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE).markDirty(player, "inventory", "field_71071_by", i);
 		}
 	}
 	
@@ -91,9 +93,9 @@ public class CapabilityHandler
 					switch (capability)
 					{
 						case "crossbow":
-							if (stack.getItem() instanceof ItemCrossbow && stack.hasCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.SIDE))
+							if (stack.getItem() instanceof ItemCrossbow && stack.hasCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE))
 							{
-								CapabilityCrossbow.Provider.INSTANCE.readNBT(stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.SIDE), Provider.SIDE, nbtMagazine);
+								CapabilityCrossbow.Provider.INSTANCE.readNBT(stack.getCapability(CapabilityCrossbow.Provider.INSTANCE, Provider.FACE), Provider.FACE, nbtMagazine);
 							}	
 							break;
 						default:

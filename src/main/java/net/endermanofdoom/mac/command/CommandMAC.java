@@ -1,22 +1,16 @@
 package net.endermanofdoom.mac.command;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.List;
 
 import net.endermanofdoom.mac.MACCore;
 import net.endermanofdoom.mac.registry.MACAttributes;
-import net.endermanofdoom.mac.util.FileUtil;
 import net.endermanofdoom.mac.util.ReflectionUtil;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 
 public class CommandMAC extends CommandBase
 {
