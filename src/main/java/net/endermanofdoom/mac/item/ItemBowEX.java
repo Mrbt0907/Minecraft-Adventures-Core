@@ -1,18 +1,25 @@
 package net.endermanofdoom.mac.item;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
+
+import com.google.common.collect.Multimap;
 
 import net.endermanofdoom.mac.util.EnchantmentUtil;
 import net.endermanofdoom.mac.util.math.Vec;
 import net.endermanofdoom.mac.util.math.Vec3;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.IItemPropertyGetter;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemBow;
@@ -65,6 +72,41 @@ public abstract class ItemBowEX extends ItemBow
 			}
 		});
 	}
+
+	/**Runs when the player right clicks with this bow*/
+	public abstract void onStartUse(ItemStack stack, World world, EntityPlayer shooter);
+	/**Runs while the player holds right click with this bow*/
+	public abstract void onTickUse(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
+	/**Runs when the player releases right click with this bow in hand*/
+	public abstract void onStopUse(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
+	/**Runs before all arrows are shot from this bow*/
+	public abstract void onShootPre(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
+	/**Runs for each arrow shot from this bow*/
+	public abstract void onShoot(ItemStack stack, World world, EntityPlayer shooter, EntityArrow arrow, int timeLeft, int arrowIndex);
+	/**Runs after all arrows are shot from this bow*/
+	public abstract void onShootPost(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
+	/**Runs when any arrow fails to shoot from this bow*/
+	public abstract void onShootFail(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
+	/**Returns the arrow that this bow will shoot. Return null or the arrow parameter to shoot the original arrow*/
+	public EntityArrow onCreateArrow(ItemStack stack, World world, EntityPlayer shooter, EntityArrow arrow, int timeLeft, int arrowIndex)
+	{
+		return null;
+	}
+	/**Returns where the created arrow of this bow will shoot from*/
+	public Vec3 getShootPos(ItemStack stack, World world, EntityPlayer shooter, int arrowIndex)
+	{
+		Vec3 position = new Vec3(shooter);
+		position.posY += shooter.eyeHeight;
+		return position;
+	}
+	/**Returns the direction in which the created arrow of this bow will shoot towards*/
+	public Vec getShootRot(ItemStack stack, World world, EntityPlayer shooter, int arrowIndex)
+	{
+		return new Vec(shooter.rotationPitch, shooter.rotationYaw);
+	}
+	/**Runs when attributes for this bow are being gathered. Add attribute modifiers in attributes. Existing values will be overwritten*/
+	public void getAttributes(EntityEquipmentSlot slot, Map<String, AttributeModifier> attributes) {}
+	
 	
 	public ItemBowEX setChargeTime(int value)
 	{
@@ -107,28 +149,6 @@ public abstract class ItemBowEX extends ItemBow
 		sound = value;
 		return this;
 	}
-
-	public Vec3 getShootPos(ItemStack stack, World world, EntityPlayer shooter, int arrowIndex)
-	{
-		Vec3 position = new Vec3(shooter);
-		position.posY += shooter.eyeHeight;
-		return position;
-	}
-	
-	public Vec getShootRot(ItemStack stack, World world, EntityPlayer shooter, int arrowIndex)
-	{
-		return new Vec(shooter.rotationPitch, shooter.rotationYaw);
-	}
-
-	public abstract void onStartUse(ItemStack stack, World world, EntityPlayer shooter);
-	public abstract void onTickUse(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
-	public abstract void onStopUse(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
-	public abstract void onShootPre(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
-	public abstract void onShoot(ItemStack stack, World world, EntityPlayer shooter, EntityArrow arrow, int timeLeft, int arrowIndex);
-	public abstract void onShootPost(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
-	public abstract void onShootFail(ItemStack stack, World world, EntityPlayer shooter, int timeLeft);
-	public abstract EntityArrow onCreateArrow(ItemStack stack, World world, EntityPlayer shooter, EntityArrow arrow, int timeLeft, int arrowIndex);
-
 	
 	protected void shoot(ItemStack stack, World world, EntityPlayer shooter, int timeLeft)
 	{
@@ -157,6 +177,7 @@ public abstract class ItemBowEX extends ItemBow
 						Vec3 position = getShootPos(itemstack, world, shooter, ii);
 						Vec rotation = getShootRot(itemstack, world, shooter, ii);
 						EntityArrow entityarrow = onCreateArrow(itemstack, world, shooter, arrow.createArrow(world, itemstack, shooter), timeLeft, ii);
+						if (entityarrow == null) entityarrow = ((ItemArrow)Items.ARROW).createArrow(world, itemstack, shooter);
 						entityarrow.setPosition(position.posX, position.posY, position.posZ);
 						entityarrow.setDamage(entityarrow.getDamage() + arrowDamage);
 						entityarrow = customizeArrow(entityarrow);
@@ -273,4 +294,20 @@ public abstract class ItemBowEX extends ItemBow
 	{
 		return enchantability;
 	}
+	
+	@Override
+	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack)
+    {
+		Multimap<String, AttributeModifier> modifiers = super.getAttributeModifiers(slot, stack);
+		Map<String, AttributeModifier> userModifiers = new HashMap<String, AttributeModifier>();
+		getAttributes(slot, userModifiers);
+		if (userModifiers != null)
+			for (Entry<String, AttributeModifier> modifier : userModifiers.entrySet())
+			{
+				if (modifiers.containsKey(modifier.getKey()))
+					modifiers.removeAll(modifier.getKey());
+				modifiers.put(modifier.getKey(), modifier.getValue());
+			}
+		return modifiers;
+    }
 }

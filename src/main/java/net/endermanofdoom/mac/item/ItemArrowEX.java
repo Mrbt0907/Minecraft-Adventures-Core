@@ -20,7 +20,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class ItemArrowEX extends ItemArrow
 {
 	public ItemArrowEX() {}
-	public abstract EntityArrowEX onArrowCreate(World world, ItemStack stack, EntityLivingBase shooter, EntityArrowEX arrow);
 	public abstract void onArrowTick(World world, EntityLivingBase shooter, EntityArrowEX arrow);
 	public abstract void onArrowTickAir(World world, EntityLivingBase shooter, EntityArrowEX arrow);
 	public abstract void onArrowTickGround(World world, EntityLivingBase shooter, EntityArrowEX arrow);
@@ -28,7 +27,11 @@ public abstract class ItemArrowEX extends ItemArrow
 	public abstract void onArrowHit(World world, EntityLivingBase shooter, Entity victim, EntityArrowEX arrow);
 	public abstract void onArrowHitBlock(World world, EntityLivingBase shooter, RayTraceResult raytrace, EntityArrowEX arrow);
 	public abstract void onArrowStop(World world, EntityLivingBase shooter, RayTraceResult raytrace, EntityArrowEX arrow);
-
+	public EntityArrowEX onArrowCreate(World world, ItemStack stack, EntityLivingBase shooter, EntityArrowEX arrow)
+	{
+		return arrow;
+	}
+	
 	public boolean onPierce(World world, EntityLivingBase shooter, Entity victim, RayTraceResult raytrace, EntityArrowEX arrow)
 	{
 		return victim instanceof EntityEnderman;
