@@ -78,8 +78,16 @@ public abstract class ItemSwordEX extends ItemSword
 					}
 			}
 			targetIndex = -1;
+			
+			if (!player.getHeldItemOffhand().isEmpty() && player.getHeldItemOffhand().getItem() instanceof ItemSwordEX)
+				((ItemSwordEX)player.getHeldItemOffhand().getItem()).onAttackPre(player.getHeldItemOffhand(), player.world, player, victim, targetIndex + 1, shouldStopAttack);
+			
 			return onAttackPre(stack, player.world, player, victim, targetIndex + 1, shouldStopAttack) ? true : shouldStopAttack;
 		}
+
+		if (!player.getHeldItemOffhand().isEmpty() && player.getHeldItemOffhand().getItem() instanceof ItemSwordEX)
+			((ItemSwordEX)player.getHeldItemOffhand().getItem()).onAttackPre(player.getHeldItemOffhand(), player.world, player, victim, targetIndex, shouldStopAttack);
+		
 		return onAttackPre(stack, player.world, player, victim, targetIndex, shouldStopAttack) ? true : shouldStopAttack;
     }
 	
