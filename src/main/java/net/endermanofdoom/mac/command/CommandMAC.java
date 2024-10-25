@@ -60,6 +60,17 @@ public class CommandMAC extends CommandBase
 					else
 						sender.sendMessage(new TextComponentString("/mac reach <Extra Attack Reach Distance>"));
 					break;
+				case "mana":
+					if (args.length > 1 && sender instanceof EntityPlayerMP)
+					{
+						double reach = Math.max(Double.parseDouble(args[1]), 0.0D);
+						((EntityPlayerMP)sender).getEntityAttribute(MACAttributes.MAX_MANA).setBaseValue(reach);
+						((EntityPlayerMP)sender).getEntityAttribute(MACAttributes.CURRENT_MANA).setBaseValue(reach);
+						sender.sendMessage(new TextComponentString("Set Mana to " + reach + " units"));
+					}
+					else
+						sender.sendMessage(new TextComponentString("/mac mana <Extra Mana>"));
+					break;
 				default:
 					sender.sendMessage(new TextComponentString("/mac <class>"));
 			}

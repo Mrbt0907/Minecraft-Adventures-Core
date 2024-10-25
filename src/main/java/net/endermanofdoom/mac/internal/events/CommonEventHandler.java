@@ -106,6 +106,10 @@ public class CommonEventHandler
 			AbstractAttributeMap attributes = ((EntityPlayer)entity).getAttributeMap();
 			if (attributes.getAttributeInstance(MACAttributes.ATTACK_RANGE) == null)
 				attributes.registerAttribute(MACAttributes.ATTACK_RANGE);
+			if (attributes.getAttributeInstance(MACAttributes.CURRENT_MANA) == null)
+				attributes.registerAttribute(MACAttributes.CURRENT_MANA);
+			if (attributes.getAttributeInstance(MACAttributes.MAX_MANA) == null)
+				attributes.registerAttribute(MACAttributes.MAX_MANA);
 		}
 	}
 	

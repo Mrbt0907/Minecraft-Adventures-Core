@@ -12,9 +12,9 @@ project.mkdir "libs"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
 
 
-version = '2.7'
+version = '2.8'
 group = 'net.endermanofdoom.mac'
-archivesBaseName = 'MAC_API'
+archivesBaseName = 'Doom Core'
 
 
 minecraft
