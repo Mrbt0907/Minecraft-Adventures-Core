@@ -80,9 +80,8 @@ jar
 	manifest
 	{
 		attributes (
-			'FMLAT': '${at_mixin_name}_at.cfg',
-	        'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-	        'MixinConfigs': '${at_mixin_name}_mixin.json',
+			'FMLAT': 'ender_at.cfg',
+	        'FMLCorePlugin': 'net.endermanofdoom.mac.MixinLoader',
 	        'FMLCorePluginContainsFMLMod': 'true'
         )
     }
