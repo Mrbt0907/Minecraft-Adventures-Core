@@ -1,14 +1,14 @@
 buildscript
 {
-    repositories
-    {
-        jcenter()
+	repositories
+	{
+		jcenter()
 		maven { url = "https://files.minecraftforge.net/maven" }
 		maven
 		{
-        	name = 'sponge'
-        	url = 'https://repo.spongepowered.org/repository/maven-public'
-    	}
+			name = 'sponge'
+			url = 'https://repo.spongepowered.org/repository/maven-public'
+		}
 	}
 	dependencies
 	{
@@ -16,29 +16,23 @@ buildscript
 		classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
 	}
 }
+
+apply plugin: 'eclipse'
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
-
-project.mkdir "libs"
 sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
-
+project.mkdir "libs"
 
 version = mod_version
 group = mod_group
 archivesBaseName = mod_name
 
-
 minecraft
 {
-    version = "${minecraft_version}-${forge_version}"
-    mappings = minecraft_mappings
-    runDir = "run"
-    makeObfSourceJar = false
-}
-
-mixin
-{
-   //add sourceSets.main, "${at_mixin_name}_mixin_refmap.json"
+	version = "${minecraft_version}-${forge_version}"
+	mappings = minecraft_mappings
+	makeObfSourceJar = false
+	runDir = "run"
 }
 
 repositories
@@ -49,42 +43,46 @@ repositories
 		url "http://dvs1.progwml6.com/files/maven"
 	}
 	maven {
-        name = 'SpongePowered'
-        url = 'https://repo.spongepowered.org/repository/maven-public/'
+		name = 'SpongePowered'
+		url = 'https://repo.spongepowered.org/repository/maven-public/'
    	}
 }
 
 dependencies
 {
    runtime "mezz.jei:jei_${minecraft_version}:${jei_version}"
-   compile 'org.spongepowered:mixin:0.8.5'
+   compile ("org.spongepowered:mixin:${mixin_version}")
+   {
+       exclude module: "launchwrapper"
+       exclude module: "guava"
+       exclude module: "gson"
+       exclude module: "commons-io"
+   }
 }
 
 processResources
 {
-    inputs.property "version", mod_version
-    inputs.property "mcversion", minecraft_version
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
     from(sourceSets.main.resources.srcDirs)
     {
         include 'mcmod.info'
-        expand 'version':mod_version, 'mcversion':minecraft_version
+        expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-    from(sourceSets.main.resources.srcDirs)
-    {
-    	exclude 'mcmod.info'
-    }
-    rename '(.+_at.cfg)', 'META-INF/$1'
+    from(sourceSets.main.resources.srcDirs) { exclude 'mcmod.info' }
 }
+
 jar
 {
-	manifest
+	from {configurations.compileClasspath.filter {"mixin-${mixin_version}.jar" == it.name}.collect{it.isDirectory() ? it : zipTree(it)}}
 	{
-		attributes (
-			'FMLAT': '${at_mixin_name}_at.cfg',
-	        'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-	        'MixinConfigs': '${at_mixin_name}_mixin.json',
-	        'FMLCorePluginContainsFMLMod': 'true'
-        )
-    }
-	
+		exclude 'dummyThing', 'LICENSE.txt', 'module-info.class', 'META-INF/MANIFSET.MF', 'META-INF/maven/**', 'META-INF/*.RSA', 'META-INF/*.SF'
+	}
+	manifest.attributes (
+			'FMLAT': "${mod_id}_at.cfg",
+			'TweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
+			'MixinConfigs': "META-INF/${mod_id}_mixin.json",
+			'FMLCorePluginContainsFMLMod': 'true'
+	)
+	finalizedBy 'reobfJar'
 }
