@@ -25,7 +25,7 @@ public class ChunkLoadingUtil implements LoadingCallback
 	{
 		instance = new ChunkLoadingUtil();
 		MinecraftForge.EVENT_BUS.register(instance);
-		ForgeChunkManager.setForcedChunkLoadingCallback(MrbtAPI.instance, instance);
+		ForgeChunkManager.setForcedChunkLoadingCallback(MrbtAPI.INSTANCE, instance);
 	}
 
 	public static void updateLoaded(Entity mob)
@@ -45,7 +45,7 @@ public class ChunkLoadingUtil implements LoadingCallback
 			ticket = ticketList.get(mob);
 			ForgeChunkManager.releaseTicket(ticket);
 		}
-		ticket = ForgeChunkManager.requestTicket(MrbtAPI.instance, mob.world, ForgeChunkManager.Type.ENTITY);
+		ticket = ForgeChunkManager.requestTicket(MrbtAPI.INSTANCE, mob.world, ForgeChunkManager.Type.ENTITY);
 		
 		if (ticket != null)
 		{

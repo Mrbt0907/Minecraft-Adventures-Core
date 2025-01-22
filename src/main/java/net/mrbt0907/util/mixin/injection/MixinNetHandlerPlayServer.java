@@ -13,7 +13,6 @@ public class MixinNetHandlerPlayServer
 	@ModifyVariable(method = "processUseEntity(Lnet/minecraft/network/play/client/CPacketUseEntity;)V", at = @At("STORE"), ordinal = 0, require = 0)
 	private double reachDistance(double reach)
 	{
-		System.out.println("Range: " + reach);
-		return ((RangedAttribute)EntityPlayer.REACH_DISTANCE).maximumValue;
+		return Math.pow(((RangedAttribute)EntityPlayer.REACH_DISTANCE).maximumValue, 2.0D);
 	}
 }

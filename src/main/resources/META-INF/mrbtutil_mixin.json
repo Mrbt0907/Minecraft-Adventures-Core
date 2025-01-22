@@ -6,5 +6,11 @@
 	"compatibilityLevel": "JAVA_8",
 	"mixins": [
 		"MixinNetHandlerPlayServer"
-	]
+	],
+	"client": [
+		"MixinEntityRenderer"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
 }

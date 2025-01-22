@@ -33,7 +33,11 @@ minecraft
 	mappings = minecraft_mappings
 	makeObfSourceJar = false
 	runDir = "run"
+	clientRunArgs = ["--tweakClass", "org.spongepowered.asm.launch.MixinTweaker", "--mixin", "META-INF/${mod_id}_mixin.json"]
+	serverRunArgs = ["--tweakClass", "org.spongepowered.asm.launch.MixinTweaker", "--mixin", "META-INF/${mod_id}_mixin.json"]
 }
+runClient.args = ["--tweakClass", "org.spongepowered.asm.launch.MixinTweaker", "--mixin", "META-INF/${mod_id}_mixin.json"]
+runServer.args = ["--tweakClass", "org.spongepowered.asm.launch.MixinTweaker", "--mixin", "META-INF/${mod_id}_mixin.json"]
 
 repositories
 {

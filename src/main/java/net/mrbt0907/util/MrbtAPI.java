@@ -11,15 +11,16 @@ public class MrbtAPI
 {
 	public static final boolean ISREMOTE = FMLCommonHandler.instance().getEffectiveSide().equals(Side.CLIENT);
 	public static String MODID;
-	public static Object instance;
+	public static Object INSTANCE;
 	public static NetworkReciever NETWORK;
+	public static boolean DEBUGMODE;
 	
 	public static void initialize(String modid, Object modInstance)
 	{
-		if (instance == null)
+		if (MODID == null)
 		{
 			MODID = modid;
-			instance = modInstance;
+			INSTANCE = modInstance;
 			NETWORK = new NetworkReciever();
 		}
 	}
@@ -47,6 +48,8 @@ public class MrbtAPI
 		else
 			CommonProxy.postInit(event);
 	}
+	
+	
 	
 	public static void error(Object message)
 	{
