@@ -23,6 +23,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.mrbt0907.util.mixin.CameraHandler;
+import net.mrbt0907.util.util.WorldUtil;
 
 @Mixin(EntityRenderer.class)
 public class MixinEntityRenderer
@@ -44,73 +45,70 @@ public class MixinEntityRenderer
 			{
 				mc.mcProfiler.startSection("pick");
 				mc.pointedEntity = null;
-				double d0 = (double)mc.playerController.getBlockReachDistance();
-				mc.objectMouseOver = entity.rayTrace(d0, partialTicks);
+				double reachDistance = (double) mc.playerController.getBlockReachDistance();
+				double d0 = reachDistance;
+				
+				mc.objectMouseOver = entity.rayTrace(reachDistance, partialTicks);
 				Vec3d vec3d = entity.getPositionEyes(partialTicks);
-				double d1 = d0;
 
 				if (mc.playerController.extendedReach())
 				{
-					d1 += 3.0D;
-					d0 = d1;
+					d0 += 3.0D;
+					reachDistance = d0;
 				}
 
 				if (mc.objectMouseOver != null)
-					d1 = mc.objectMouseOver.hitVec.distanceTo(vec3d);
+					d0 = mc.objectMouseOver.hitVec.distanceTo(vec3d);
 
 				Vec3d vec3d1 = entity.getLook(1.0F);
-				Vec3d vec3d2 = vec3d.addVector(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
+				Vec3d vec3d2 = vec3d.addVector(vec3d1.x * reachDistance, vec3d1.y * reachDistance, vec3d1.z * reachDistance);
 				pointedEntity = null;
 				Vec3d vec3d3 = null;
-				List<Entity> list = mc.world.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0D, 1.0D, 1.0D), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>()
+				
+				List<Entity> entities = WorldUtil.getEntities(entity, entity.getEntityBoundingBox().expand(vec3d1.x * reachDistance, vec3d1.y * reachDistance, vec3d1.z * reachDistance).grow(1.0D, 1.0D, 1.0D), WorldUtil.CAN_BE_HIT);
+				AxisAlignedBB boundingBox;
+				RayTraceResult result;
+				double d1 = d0;
+				
+				for (Entity target : entities)
 				{
-					public boolean apply(@Nullable Entity p_apply_1_)
-					{
-						return p_apply_1_ != null && p_apply_1_.canBeCollidedWith();
-					}
-				}));
-				double d2 = d1;
+					boundingBox = target.getEntityBoundingBox().grow((double)target.getCollisionBorderSize());
+					result = boundingBox.calculateIntercept(vec3d, vec3d2);
 
-				for (int j = 0; j < list.size(); ++j)
-				{
-					Entity entity1 = list.get(j);
-					AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow((double)entity1.getCollisionBorderSize());
-					RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
-
-					if (axisalignedbb.contains(vec3d))
+					if (boundingBox.contains(vec3d))
 					{
-						if (d2 >= 0.0D)
+						if (d1 >= 0.0D)
 						{
-							pointedEntity = entity1;
-							vec3d3 = raytraceresult == null ? vec3d : raytraceresult.hitVec;
-							d2 = 0.0D;
+							pointedEntity = target;
+							vec3d3 = result == null ? vec3d : result.hitVec;
+							d1 = 0.0D;
 						}
 					}
-					else if (raytraceresult != null)
+					else if (result != null)
 					{
-						double d3 = vec3d.distanceTo(raytraceresult.hitVec);
+						double d3 = vec3d.distanceTo(result.hitVec);
 
-						if (d3 < d2 || d2 == 0.0D)
+						if (d3 < d1 || d1 == 0.0D)
 						{
-							if (entity1.getLowestRidingEntity() == entity.getLowestRidingEntity() && !entity1.canRiderInteract())
+							if (target.getLowestRidingEntity() == entity.getLowestRidingEntity() && !target.canRiderInteract())
 							{
-								if (d2 == 0.0D)
+								if (d1 == 0.0D)
 								{
-									pointedEntity = entity1;
-									vec3d3 = raytraceresult.hitVec;
+									pointedEntity = target;
+									vec3d3 = result.hitVec;
 								}
 							}
 							else
 							{
-								pointedEntity = entity1;
-								vec3d3 = raytraceresult.hitVec;
-								d2 = d3;
+								pointedEntity = target;
+								vec3d3 = result.hitVec;
+								d1 = d3;
 							}
 						}
 					}
 				}
 
-				if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null))
+				if (pointedEntity != null && (d1 < d0 || mc.objectMouseOver == null))
 				{
 					mc.objectMouseOver = new RayTraceResult(pointedEntity, vec3d3);
 
