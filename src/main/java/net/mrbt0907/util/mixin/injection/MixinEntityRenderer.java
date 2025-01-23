@@ -22,6 +22,7 @@ import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.mrbt0907.util.mixin.CameraHandler;
 
 @Mixin(EntityRenderer.class)
 public class MixinEntityRenderer
@@ -31,7 +32,8 @@ public class MixinEntityRenderer
 	@Shadow
 	private Entity pointedEntity;
 	
-	@Inject(method = "getMouseOver(F)V", at = @At("HEAD"), cancellable = true)
+	/** Injecting into getMouseOver allows us to add extra range to weapons and tools */
+	@Inject(method = "getMouseOver(F)V", at = @At("HEAD"), cancellable = true, require = -1)
 	public void getMouseOver(float partialTicks, CallbackInfo callback)
 	{
 		Entity entity = mc.getRenderViewEntity();
@@ -121,4 +123,12 @@ public class MixinEntityRenderer
 		}
 		callback.cancel();
 	}
+	
+	/** Injecting into orientCamera gives us the perfect spot to shake the perspective */
+	@Inject(method = "orientCamera(F)V", at = @At("RETURN"))
+	private void orientCamera(float partialTicks, CallbackInfo callback)
+    {
+		if (!mc.isGamePaused())
+			CameraHandler.applyTransform(partialTicks);
+    }
 }

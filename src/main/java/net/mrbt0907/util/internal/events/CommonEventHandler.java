@@ -12,6 +12,7 @@ import net.minecraftforge.fml.common.event.FMLServerStoppingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
 import net.mrbt0907.util.events.WorldEvent;
+import net.mrbt0907.util.mixin.CameraHandler;
 import net.mrbt0907.util.world.WorldDataManager;
 
 public class CommonEventHandler
@@ -59,5 +60,7 @@ public class CommonEventHandler
 			if (victim instanceof EntityLivingBase)
 				((EntityLivingBase)victim).recentlyHit = 100;
 		}
+		
+		CameraHandler.shakeCamera(1.0F, true);
 	}
 }

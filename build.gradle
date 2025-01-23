@@ -1,3 +1,4 @@
+//For now, you have to manually edit the resulting mixin.refmap.json file to include the proper paths to the api mixins
 buildscript
 {
 	repositories
@@ -73,7 +74,7 @@ processResources
         include 'mcmod.info'
         expand 'version':project.version, 'mcversion':project.minecraft.version
     }
-    from(sourceSets.main.resources.srcDirs) { exclude 'mcmod.info' }
+    from(sourceSets.main.resources.srcDirs) { exclude 'mcmod.info'}
 }
 
 jar

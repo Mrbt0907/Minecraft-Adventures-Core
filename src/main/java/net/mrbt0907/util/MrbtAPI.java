@@ -1,10 +1,13 @@
 package net.mrbt0907.util;
 
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.relauncher.Side;
+import net.mrbt0907.util.internal.events.CommonEventHandler;
+import net.mrbt0907.util.network.NetworkHandler;
 import net.mrbt0907.util.network.NetworkReciever;
 
 public class MrbtAPI
@@ -27,6 +30,11 @@ public class MrbtAPI
 	
 	public static void preInit(FMLPreInitializationEvent event)
 	{
+		NetworkHandler.preInit();
+		NetworkHandler.register(NETWORK);
+		
+		MinecraftForge.EVENT_BUS.register(CommonEventHandler.class);
+		
 		if (ISREMOTE)
 			ClientProxy.preInit(event);
 		else
