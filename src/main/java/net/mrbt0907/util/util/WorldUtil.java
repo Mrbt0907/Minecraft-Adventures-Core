@@ -37,7 +37,7 @@ public class WorldUtil
 			{
 				boundingBox = target.getEntityBoundingBox();
 				if (boundingBox != null && searchBoundingBox.intersects(boundingBox))
-					if (predicate == null || predicate.test(target))
+					if (predicate == null || predicate.apply(target))
 						entities.add(target);
 				
 				if (parts != null)
@@ -45,7 +45,7 @@ public class WorldUtil
 					{
 						boundingBox = part.getEntityBoundingBox();
 						if (boundingBox != null && searchBoundingBox.intersects(boundingBox))
-							if (predicate == null || predicate.test(target))
+							if (predicate == null || predicate.apply(target))
 								entities.add(part);
 					}
 			}
@@ -69,17 +69,14 @@ public class WorldUtil
 			if (!target.equals(entity))
 			{
 				distance = target.getDistance(entity);
-				if (distance <= radius)
-				{
-					if (predicate == null || predicate.test(target))
-						entities.add(target);
-				}
+				if (distance <= radius && predicate == null || predicate.apply(target))
+					entities.add(target);
 				
 				if (parts != null)
 					for (Entity part : parts)
 					{
 						distance = part.getDistance(entity);
-						if (distance <= radius && (predicate == null || predicate.test(target)))
+						if (distance <= radius && (predicate == null || predicate.apply(target)))
 							entities.add(part);
 					}
 			}
